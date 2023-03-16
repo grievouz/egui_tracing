@@ -10,16 +10,25 @@ use tracing::{
 };
 use tracing_subscriber::{layer::Context, registry::LookupSpan, Layer};
 
-use super::event::CollectedEvent;
+use super::event::CapturedEvent;
 
 #[derive(Debug, Clone)]
 pub struct EventCollector {
-    events: Arc<Mutex<Vec<CollectedEvent>>>,
+    events: Arc<Mutex<Vec<CapturedEvent>>>,
 }
 
 impl EventCollector {
-    pub fn events(&self) -> Vec<CollectedEvent> {
+    pub fn events(&self) -> Vec<CapturedEvent> {
         return self.events.lock().unwrap().clone();
+    }
+
+    pub fn clear(&self) {
+        let mut events = self.events.lock().unwrap();
+        *events = Vec::new();
+    }
+
+    fn collect(&self, event: CapturedEvent) {
+        self.events.lock().unwrap().push(event);
     }
 }
 
@@ -40,8 +49,7 @@ where
         let mut fields = BTreeMap::new();
         let mut visitor = FieldVisitor(&mut fields);
         event.record(&mut visitor);
-        let mut events = self.events.lock().unwrap();
-        events.push(CollectedEvent {
+        self.collect(CapturedEvent {
             level: meta.level().to_owned().into(),
             time: Local::now(),
             target: meta.target().into(),

@@ -1,17 +1,16 @@
 use egui_tracing::EventCollector;
-use tracing::warn;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::layer::SubscriberExt;
+use tracing_subscriber::util::SubscriberInitExt;
 
 fn main() {
     let collector = egui_tracing::collector();
     tracing_subscriber::registry()
         .with(collector.clone())
-        .with(tracing_subscriber::fmt::layer())
         .init();
 
     let options = eframe::NativeOptions {
         resizable: true,
-        initial_window_size: Some(egui::vec2(600.0, 500.0)),
+        initial_window_size: Some(egui::vec2(800.0, 500.0)),
         ..Default::default()
     };
     eframe::run_native(
@@ -34,7 +33,6 @@ impl MyApp {
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        warn!("test");
         egui::CentralPanel::default().show(ctx, |ui| {
             egui_tracing::ui(&self.collector, ui);
         });
