@@ -1,7 +1,12 @@
 [package]
 name = "egui_tracing"
+description = "Integrates tracing and logging with egui for event collection/visualization"
 version = "0.1.0"
+authors = ["Grievouz <tammo@ronke.dev>"]
 edition = "2021"
+license = "Unlicense"
+repository = "https://github.com/grievouz/egui_tracing"
+keywords = ["egui", "tracing", "log"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
