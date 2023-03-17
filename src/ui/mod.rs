@@ -71,9 +71,9 @@ pub fn ui(collector: &EventCollector, ui: &mut egui::Ui) {
                 ui.add_space(2.0);
                 ui.menu_button("Level", |ui| {
                     ui.label("Level Message Filter");
-                    state.level_filter.to_owned().keys().for_each(|level| {
+                    state.level_filter.clone().keys().for_each(|level| {
                         ui.add(egui::Checkbox::new(
-                            state.level_filter.get_mut(&level).unwrap(),
+                            state.level_filter.get_mut(level).unwrap(),
                             RichText::new(level.as_str()).color(level.to_color32()),
                         ));
                     });
@@ -106,11 +106,11 @@ pub fn ui(collector: &EventCollector, ui: &mut egui::Ui) {
         let filtered_events = events
             .iter()
             .filter(|event| {
-                state
+                return state
                     .level_filter
                     .get(&event.level)
                     .unwrap_or(&false)
-                    .to_owned()
+                    .to_owned();
             })
             .collect::<Vec<&CapturedEvent>>();
         let row_height = ui.style().spacing.interact_size.y
