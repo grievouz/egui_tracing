@@ -6,14 +6,14 @@ use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 
 use egui::mutex::Mutex;
-use egui::{Color32, Id, Label, RichText};
+use egui::{Color32, Id, Label, RichText, TextStyle};
 use lazy_static::lazy_static;
 use tracing::Level;
 
 use self::color::ToColor32;
 use self::string::Ellipse;
 use self::time::SpecificFormats;
-use crate::tracing::EventCollector;
+use crate::tracing::{CapturedEvent, EventCollector};
 
 lazy_static! {
     static ref STATES: Arc<Mutex<HashMap<Id, AppState>>> = Default::default();
@@ -103,16 +103,23 @@ pub fn ui(collector: &EventCollector, ui: &mut egui::Ui) {
             }
         });
         ui.separator();
+        let filtered_events = events
+            .iter()
+            .filter(|event| {
+                state
+                    .level_filter
+                    .get(&event.level)
+                    .unwrap_or(&false)
+                    .to_owned()
+            })
+            .collect::<Vec<&CapturedEvent>>();
+        let row_height = ui.style().spacing.interact_size.y
+            + ui.style().text_styles.get(&TextStyle::Small).unwrap().size;
         egui::ScrollArea::vertical()
             .stick_to_bottom(true)
-            .show(ui, |ui| {
-                for event in events.iter().filter(|event| {
-                    state
-                        .level_filter
-                        .get(&event.level)
-                        .unwrap_or(&false)
-                        .to_owned()
-                }) {
+            .show_rows(ui, row_height, events.len(), |ui, range| {
+                for i in range {
+                    let event = filtered_events.get(i).unwrap();
                     ui.horizontal(|ui| {
                         ui.add_space(5.0);
                         ui.horizontal(|ui| {
