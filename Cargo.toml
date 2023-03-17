@@ -12,7 +12,7 @@ keywords = ["egui", "tracing", "log"]
 
 [dependencies]
 anyhow = "1.0.69"
-chrono = "0.4.24"
+chrono = { version = "0.4.24", default-features = false, features = ["clock"] }
 egui = "0.21"
 lazy_static = "1.4.0"
 tracing = "0.1.37"
