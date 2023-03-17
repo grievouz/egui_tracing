@@ -10,7 +10,7 @@ use egui::{Color32, Id, Label, Response, RichText, TextStyle};
 use lazy_static::lazy_static;
 use tracing::Level;
 
-use self::color::ToColor32;
+use self::color::{ToColor32, DEBUG_COLOR, ERROR_COLOR, INFO_COLOR, TRACE_COLOR, WARN_COLOR};
 use self::string::Ellipse;
 use self::time::SpecificFormats;
 use crate::tracing::{CapturedEvent, EventCollector};
@@ -97,23 +97,23 @@ pub fn ui(collector: &EventCollector, ui: &mut egui::Ui) {
                     ui.label("Level Message Filter");
                     ui.add(egui::Checkbox::new(
                         &mut mem_state.level_filter.trace,
-                        RichText::new("TRACE").color(Color32::WHITE),
+                        RichText::new("TRACE").color(TRACE_COLOR),
                     ));
                     ui.add(egui::Checkbox::new(
                         &mut mem_state.level_filter.debug,
-                        RichText::new("DEBUG").color(Color32::WHITE),
+                        RichText::new("DEBUG").color(DEBUG_COLOR),
                     ));
                     ui.add(egui::Checkbox::new(
                         &mut mem_state.level_filter.info,
-                        RichText::new("INFO").color(Color32::WHITE),
+                        RichText::new("INFO").color(INFO_COLOR),
                     ));
                     ui.add(egui::Checkbox::new(
                         &mut mem_state.level_filter.warn,
-                        RichText::new("WARN").color(Color32::WHITE),
+                        RichText::new("WARN").color(WARN_COLOR),
                     ));
                     ui.add(egui::Checkbox::new(
                         &mut mem_state.level_filter.error,
-                        RichText::new("ERROR").color(Color32::WHITE),
+                        RichText::new("ERROR").color(ERROR_COLOR),
                     ));
                 });
             });
@@ -158,8 +158,9 @@ pub fn ui(collector: &EventCollector, ui: &mut egui::Ui) {
             + ui.style().text_styles.get(&TextStyle::Small).unwrap().size;
 
         egui::ScrollArea::vertical()
+            .auto_shrink([false, false])
             .stick_to_bottom(true)
-            .show_rows(ui, row_height, events.len(), |ui, range| {
+            .show_rows(ui, row_height, filtered_events.len(), |ui, range| {
                 for event in filtered_events.iter().skip(range.start).take(range.len()) {
                     ui.horizontal(|ui| {
                         ui.add_space(5.0);
@@ -190,10 +191,12 @@ pub fn ui(collector: &EventCollector, ui: &mut egui::Ui) {
 
                         ui.add_space(5.0);
 
+                        let message = event.fields.get("message").unwrap();
                         ui.horizontal(|ui| {
                             ui.add_space(5.0);
                             ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
-                            ui.add(Label::new(event.fields.get("message").unwrap()).wrap(false));
+                            ui.add(Label::new(message).wrap(false))
+                                .on_hover_text(message);
                         });
                     });
 
@@ -201,7 +204,16 @@ pub fn ui(collector: &EventCollector, ui: &mut egui::Ui) {
                 }
 
                 if elements.jump_bottom_btn.unwrap().clicked() {
-                    ui.scroll_to_cursor(Some(egui::Align::Max));
+                    ui.scroll_to_rect(
+                        egui::Rect {
+                            min: egui::Pos2 { x: 0.0, y: 0.0 },
+                            max: egui::Pos2 {
+                                x: f32::MAX,
+                                y: f32::MAX,
+                            },
+                        },
+                        Some(egui::Align::Max),
+                    );
                 }
             });
     });
