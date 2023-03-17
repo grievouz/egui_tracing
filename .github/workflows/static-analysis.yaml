@@ -12,32 +12,21 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: stable
-            override: true
-            components: rustfmt, clippy
+      - uses: dtolnay/rust-toolchain@stable
+      - run: rustup component add clippy
       - run: cargo clippy
   cargo-check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: stable
-            override: true
-            components: rustfmt, clippy
+      - uses: dtolnay/rust-toolchain@stable
       - run: cargo check --all-targets
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-            toolchain: stable
-            override: true
-            components: rustfmt, clippy
+      - uses: dtolnay/rust-toolchain@stable
       - run: cargo install cargo-audit
       - run: cargo audit
