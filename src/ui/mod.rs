@@ -1,58 +1,22 @@
 mod color;
-mod level_menu_button;
+mod components;
+mod state;
 mod time;
 
 use std::sync::{Arc, Mutex};
 
-use egui::{Color32, Label, Response, RichText, TextStyle, Widget};
-use tracing::Level;
+use egui::{Color32, Label, Response, TextStyle, Widget};
 
-use self::color::{ToColor32, DEBUG_COLOR, ERROR_COLOR, INFO_COLOR, TRACE_COLOR, WARN_COLOR};
+use self::color::ToColor32;
+use self::components::header_item::HeaderItem;
+use self::components::level_menu_button::LevelFilterMenuButton;
+use self::state::LogsState;
 use self::time::SpecificFormats;
-use self::level_menu_button::LevelFilterMenuButton;
-use super::string::Ellipse;
+use crate::string::Ellipse;
 use crate::tracing::collector::EventCollector;
-
-#[derive(Debug, Clone)]
-struct LevelFilter {
-    trace: bool,
-    debug: bool,
-    info: bool,
-    warn: bool,
-    error: bool,
-}
-
-impl Default for LevelFilter {
-    fn default() -> Self {
-        Self {
-            trace: true,
-            debug: true,
-            info: true,
-            warn: true,
-            error: true,
-        }
-    }
-}
-
-impl LevelFilter {
-    pub fn get(&self, level: Level) -> bool {
-        match level {
-            Level::TRACE => self.trace,
-            Level::DEBUG => self.debug,
-            Level::INFO => self.info,
-            Level::WARN => self.warn,
-            Level::ERROR => self.error,
-        }
-    }
-}
 
 struct Elements {
     jump_bottom_btn: Option<Response>,
-}
-
-#[derive(Default)]
-struct LogsState {
-    level_filter: LevelFilter,
 }
 
 pub struct Logs {
@@ -81,16 +45,14 @@ impl Widget for Logs {
         };
 
         ui.vertical(|ui| {
+                // header
             ui.horizontal(|ui| {
                 ui.set_height(26.0);
                 ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
 
-                ui.horizontal(|ui| {
-                    ui.set_min_width(80.0);
-                    ui.separator();
-                    ui.add_space(2.0);
+                ui.add(HeaderItem::default().set_min_width(80.0).set_child(|ui| {
                     ui.label("Time");
-                });
+                }));
 
                 ui.add_space(5.0);
 
@@ -98,27 +60,20 @@ impl Widget for Logs {
                     ui.set_min_width(40.0);
                     ui.separator();
                     ui.add_space(2.0);
-                    ui.add(LevelFilterMenuButton::new(
-                        &mut state.level_filter,
-                    ));
+                    ui.add(LevelFilterMenuButton::new(&mut state.level_filter));
                 });
 
                 ui.add_space(5.0);
-
-                ui.horizontal(|ui| {
-                    ui.set_min_width(100.0);
-                    ui.separator();
-                    ui.add_space(2.0);
+                
+                ui.add(HeaderItem::default().set_min_width(100.0).set_child(|ui| {
                     ui.label("Target");
-                });
+                }));
 
                 ui.add_space(5.0);
 
-                ui.horizontal(|ui| {
-                    ui.separator();
-                    ui.add_space(2.0);
+                ui.add(HeaderItem::default().set_child(|ui| {
                     ui.label(format!("Message ({:})", events.len()));
-                });
+                }));
 
                 ui.add_space(ui.available_width() - 130.0);
 

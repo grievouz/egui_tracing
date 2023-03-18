@@ -15,7 +15,6 @@ fn main() {
     };
     let c = collector.clone();
     eframe::run_native("tracing", options, Box::new(|_cc| Box::new(MyApp::new(c)))).unwrap();
-    
 }
 
 pub struct MyApp {

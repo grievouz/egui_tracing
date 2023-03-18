@@ -1,8 +1,8 @@
 use egui::{RichText, Widget};
 
-use super::{
-    color::{ToColor32, DEBUG_COLOR, ERROR_COLOR, INFO_COLOR, TRACE_COLOR, WARN_COLOR},
-    LevelFilter,
+use crate::ui::{
+    color::{DEBUG_COLOR, ERROR_COLOR, INFO_COLOR, TRACE_COLOR, WARN_COLOR},
+    state::LevelFilter,
 };
 
 pub struct LevelFilterMenuButton<'a> {
@@ -10,15 +10,13 @@ pub struct LevelFilterMenuButton<'a> {
 }
 
 impl<'a> LevelFilterMenuButton<'a> {
-    pub(super) fn new(state: &'a mut LevelFilter) -> Self {
-        Self {
-            state
-        }
+    pub fn new(state: &'a mut LevelFilter) -> Self {
+        Self { state }
     }
 }
 
 impl<'a> Widget for LevelFilterMenuButton<'a> {
-    fn ui(mut self, ui: &mut egui::Ui) -> egui::Response {
+    fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         ui.menu_button("Level", |ui| {
             ui.label("Level Message Filter");
             ui.add(egui::Checkbox::new(
@@ -41,6 +39,7 @@ impl<'a> Widget for LevelFilterMenuButton<'a> {
                 &mut self.state.error,
                 RichText::new("ERROR").color(ERROR_COLOR),
             ));
-        }).response
+        })
+        .response
     }
 }
