@@ -1,4 +1,5 @@
 mod color;
+mod level_menu_button;
 mod time;
 
 use std::sync::{Arc, Mutex};
@@ -8,7 +9,8 @@ use tracing::Level;
 
 use self::color::{ToColor32, DEBUG_COLOR, ERROR_COLOR, INFO_COLOR, TRACE_COLOR, WARN_COLOR};
 use self::time::SpecificFormats;
-use crate::string::Ellipse;
+use self::level_menu_button::LevelFilterMenuButton;
+use super::string::Ellipse;
 use crate::tracing::collector::EventCollector;
 
 #[derive(Debug, Clone)]
@@ -96,29 +98,9 @@ impl Widget for Logs {
                     ui.set_min_width(40.0);
                     ui.separator();
                     ui.add_space(2.0);
-                    ui.menu_button("Level", |ui| {
-                        ui.label("Level Message Filter");
-                        ui.add(egui::Checkbox::new(
-                            &mut state.level_filter.trace,
-                            RichText::new("TRACE").color(TRACE_COLOR),
-                        ));
-                        ui.add(egui::Checkbox::new(
-                            &mut state.level_filter.debug,
-                            RichText::new("DEBUG").color(DEBUG_COLOR),
-                        ));
-                        ui.add(egui::Checkbox::new(
-                            &mut state.level_filter.info,
-                            RichText::new("INFO").color(INFO_COLOR),
-                        ));
-                        ui.add(egui::Checkbox::new(
-                            &mut state.level_filter.warn,
-                            RichText::new("WARN").color(WARN_COLOR),
-                        ));
-                        ui.add(egui::Checkbox::new(
-                            &mut state.level_filter.error,
-                            RichText::new("ERROR").color(ERROR_COLOR),
-                        ));
-                    });
+                    ui.add(LevelFilterMenuButton::new(
+                        &mut state.level_filter,
+                    ));
                 });
 
                 ui.add_space(5.0);
