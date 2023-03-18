@@ -11,10 +11,8 @@ keywords = ["egui", "tracing", "log"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-anyhow = "1.0.69"
 chrono = { version = "0.4.24", default-features = false, features = ["clock"] }
 egui = "0.21"
-lazy_static = "1.4.0"
 tracing = "0.1.37"
 tracing-subscriber = "0.3.16"
 unicode-segmentation = "1.10.1"

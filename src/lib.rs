@@ -1,7 +1,8 @@
-#![warn(clippy::all, clippy::pedantic, clippy::nursery)]
+// #![warn(clippy::all, clippy::pedantic)]
 
-mod tracing;
-mod ui;
+mod string;
+pub mod tracing;
+pub mod ui;
 
-pub use crate::tracing::{collector, EventCollector};
-pub use crate::ui::ui;
+pub use self::ui::Logs;
+pub use self::tracing::EventCollector;

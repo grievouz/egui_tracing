@@ -1,7 +1,6 @@
 use chrono::Local;
 use std::{
     collections::BTreeMap,
-    fmt::Debug,
     sync::{Arc, Mutex},
 };
 use tracing::{
