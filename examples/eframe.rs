@@ -13,8 +13,7 @@ fn main() {
         initial_window_size: Some(egui::vec2(800.0, 500.0)),
         ..Default::default()
     };
-    let c = collector.clone();
-    eframe::run_native("tracing", options, Box::new(|_cc| Box::new(MyApp::new(c)))).unwrap();
+    eframe::run_native("tracing", options, Box::new(|_cc| Box::new(MyApp::new(collector)))).unwrap();
 }
 
 pub struct MyApp {
@@ -23,7 +22,7 @@ pub struct MyApp {
 
 impl MyApp {
     fn new(collector: EventCollector) -> Self {
-        return Self { collector };
+        Self { collector }
     }
 }
 

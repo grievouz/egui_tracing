@@ -45,7 +45,7 @@ impl Widget for Logs {
         };
 
         ui.vertical(|ui| {
-                // header
+            // header
             ui.horizontal(|ui| {
                 ui.set_height(26.0);
                 ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
@@ -64,7 +64,7 @@ impl Widget for Logs {
                 });
 
                 ui.add_space(5.0);
-                
+
                 ui.add(HeaderItem::default().set_min_width(100.0).set_child(|ui| {
                     ui.label("Target");
                 }));

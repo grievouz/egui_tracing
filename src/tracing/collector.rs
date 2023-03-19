@@ -18,7 +18,7 @@ pub struct EventCollector {
 
 impl EventCollector {
     pub fn events(&self) -> Vec<CapturedEvent> {
-        return self.events.lock().unwrap().clone();
+        self.events.lock().unwrap().clone()
     }
 
     pub fn clear(&self) {
@@ -33,9 +33,9 @@ impl EventCollector {
 
 impl Default for EventCollector {
     fn default() -> Self {
-        return Self {
+        Self {
             events: Arc::new(Mutex::new(Vec::new())),
-        };
+        }
     }
 }
 
@@ -49,7 +49,7 @@ where
         let mut visitor = FieldVisitor(&mut fields);
         event.record(&mut visitor);
         self.collect(CapturedEvent {
-            level: meta.level().to_owned().into(),
+            level: meta.level().to_owned(),
             time: Local::now(),
             target: meta.target().into(),
             fields,

@@ -1,4 +1,4 @@
-// #![warn(clippy::all, clippy::pedantic)]
+#![warn(clippy::all, clippy::cargo)]
 
 mod string;
 pub mod tracing;

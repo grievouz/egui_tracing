@@ -2,7 +2,7 @@ use egui::{Ui, Widget};
 
 pub struct HeaderItem<T>
 where
-    T: FnOnce(&mut Ui) -> (),
+    T: FnOnce(&mut Ui),
 {
     min_width: Option<f32>,
     child: Option<T>,
@@ -10,7 +10,7 @@ where
 
 impl<T> HeaderItem<T>
 where
-    T: FnOnce(&mut Ui) -> (),
+    T: FnOnce(&mut Ui) ,
 {
     pub fn set_child(mut self, child: T) -> Self {
         self.child = Some(child);
@@ -25,7 +25,7 @@ where
 
 impl<T> Default for HeaderItem<T>
 where
-    T: FnOnce(&mut Ui) -> (),
+    T: FnOnce(&mut Ui),
 {
     fn default() -> Self {
         Self {
@@ -37,7 +37,7 @@ where
 
 impl<T> Widget for HeaderItem<T>
 where
-    T: FnOnce(&mut Ui) -> (),
+    T: FnOnce(&mut Ui),
 {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         ui.horizontal(|ui| {

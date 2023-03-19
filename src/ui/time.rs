@@ -7,9 +7,9 @@ pub trait SpecificFormats {
 
 impl SpecificFormats for DateTime<Local> {
     fn format_short(&self) -> String {
-        return self.format("%H:%M:%S%.3f").to_string();
+        self.format("%H:%M:%S%.3f").to_string()
     }
     fn format_detailed(&self) -> String {
-        return self.format("%Y-%m-%dT%H:%M:%S%.f%:z").to_string();
+        self.format("%Y-%m-%dT%H:%M:%S%.f%:z").to_string()
     }
 }
