@@ -10,11 +10,11 @@ keywords = ["egui", "tracing", "log"]
 categories = ["gui", "game-development"]
 
 [dependencies]
-chrono = { version = "0.4.24", default-features = false, features = ["clock"] }
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
 egui = "0.21"
-tracing = "0.1.37"
-tracing-subscriber = "0.3.16"
-unicode-segmentation = "1.10.1"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+unicode-segmentation = "1.10"
 
 [dev-dependencies]
 eframe = "0.21"

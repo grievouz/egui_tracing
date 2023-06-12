@@ -1,19 +1,13 @@
 use egui::{Ui, Widget};
 
-pub struct HeaderItem<T>
-where
-    T: FnOnce(&mut Ui),
-{
-    min_width: Option<f32>,
-    child: Option<T>,
+pub struct TableHeader<'a> {
+    pub min_width: Option<f32>,
+    child: Option<Box<dyn FnOnce(&mut Ui) + 'a>>,
 }
 
-impl<T> HeaderItem<T>
-where
-    T: FnOnce(&mut Ui) ,
-{
-    pub fn set_child(mut self, child: T) -> Self {
-        self.child = Some(child);
+impl<'a> TableHeader<'a> {
+    pub fn set_child(mut self, child: impl FnOnce(&mut Ui) + 'a) -> Self {
+        self.child = Some(Box::new(child));
         self
     }
 
@@ -23,10 +17,7 @@ where
     }
 }
 
-impl<T> Default for HeaderItem<T>
-where
-    T: FnOnce(&mut Ui),
-{
+impl<'a> Default for TableHeader<'a> {
     fn default() -> Self {
         Self {
             min_width: None,
@@ -35,10 +26,7 @@ where
     }
 }
 
-impl<T> Widget for HeaderItem<T>
-where
-    T: FnOnce(&mut Ui),
-{
+impl<'a> Widget for TableHeader<'a> {
     fn ui(self, ui: &mut egui::Ui) -> egui::Response {
         ui.horizontal(|ui| {
             if let Some(min_width) = self.min_width {

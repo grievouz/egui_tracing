@@ -8,8 +8,9 @@ use std::sync::{Arc, Mutex};
 use egui::{Color32, Label, Response, TextStyle, Widget};
 
 use self::color::ToColor32;
-use self::components::header_item::HeaderItem;
 use self::components::level_menu_button::LevelFilterMenuButton;
+use self::components::table::Table;
+use self::components::table_header::{TableHeader};
 use self::state::LogsState;
 use self::time::SpecificFormats;
 use crate::string::Ellipse;
@@ -44,63 +45,30 @@ impl Widget for Logs {
             jump_bottom_btn: None,
         };
 
-        ui.vertical(|ui| {
-            // header
-            ui.horizontal(|ui| {
-                ui.set_height(26.0);
-                ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
+        let filtered_events = events
+            .iter()
+            .filter(|event| state.level_filter.get(event.level))
+            .collect::<Vec<_>>();
 
-                ui.add(HeaderItem::default().set_min_width(80.0).set_child(|ui| {
+        let row_height = ui.style().spacing.interact_size.y
+            + ui.style().text_styles.get(&TextStyle::Small).unwrap().size;
+
+        ui.add(
+            Table::default()
+                .set_header_height(26.0)
+                .add_header(TableHeader::default().set_min_width(80.0).set_child(|ui| {
                     ui.label("Time");
-                }));
-
-                ui.add_space(5.0);
-
-                ui.horizontal(|ui| {
-                    ui.set_min_width(40.0);
-                    ui.separator();
-                    ui.add_space(2.0);
+                }))
+                .add_header(TableHeader::default().set_min_width(40.0).set_child(|ui| {
                     ui.add(LevelFilterMenuButton::new(&mut state.level_filter));
-                });
-
-                ui.add_space(5.0);
-
-                ui.add(HeaderItem::default().set_min_width(100.0).set_child(|ui| {
+                }))
+                .add_header(TableHeader::default().set_min_width(100.0).set_child(|ui| {
                     ui.label("Target");
-                }));
-
-                ui.add_space(5.0);
-
-                ui.add(HeaderItem::default().set_child(|ui| {
-                    ui.label(format!("Message ({:})", events.len()));
-                }));
-
-                ui.add_space(ui.available_width() - 130.0);
-
-                elements.jump_bottom_btn =
-                    Some(ui.button("To Bottom").on_hover_text("Scroll to Bottom"));
-
-                ui.separator();
-
-                if ui.button("Clear").on_hover_text("Clear Events").clicked() {
-                    self.collector.clear();
-                }
-            });
-
-            ui.separator();
-
-            let filtered_events = events
-                .iter()
-                .filter(|event| state.level_filter.get(event.level))
-                .collect::<Vec<_>>();
-
-            let row_height = ui.style().spacing.interact_size.y
-                + ui.style().text_styles.get(&TextStyle::Small).unwrap().size;
-
-            egui::ScrollArea::vertical()
-                .auto_shrink([false, false])
-                .stick_to_bottom(true)
-                .show_rows(ui, row_height, filtered_events.len(), |ui, range| {
+                }))
+                .add_header(TableHeader::default().set_child(|ui| {
+                    ui.label("Message");
+                }))
+                .show_rows(row_height, filtered_events.len(), |ui, range| {
                     for event in filtered_events.iter().skip(range.start).take(range.len()) {
                         ui.horizontal(|ui| {
                             ui.add_space(5.0);
@@ -146,20 +114,19 @@ impl Widget for Logs {
                         ui.separator();
                     }
 
-                    if elements.jump_bottom_btn.unwrap().clicked() {
-                        ui.scroll_to_rect(
-                            egui::Rect {
-                                min: egui::Pos2 { x: 0.0, y: 0.0 },
-                                max: egui::Pos2 {
-                                    x: f32::MAX,
-                                    y: f32::MAX,
-                                },
-                            },
-                            Some(egui::Align::Max),
-                        );
-                    }
-                });
-        })
-        .response
+                    // if elements.jump_bottom_btn.unwrap().clicked() {
+                    //     ui.scroll_to_rect(
+                    //         egui::Rect {
+                    //             min: egui::Pos2 { x: 0.0, y: 0.0 },
+                    //             max: egui::Pos2 {
+                    //                 x: f32::MAX,
+                    //                 y: f32::MAX,
+                    //             },
+                    //         },
+                    //         Some(egui::Align::Max),
+                    //     );
+                    // }
+                }),
+        )
     }
 }
