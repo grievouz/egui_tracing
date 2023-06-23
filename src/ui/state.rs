@@ -1,11 +1,12 @@
 use tracing::Level;
+use serde::{Serialize, Deserialize};
 
-#[derive(Default)]
+#[derive(Default, Serialize, Deserialize)]
 pub struct LogsState {
     pub level_filter: LevelFilter,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LevelFilter {
     pub trace: bool,
     pub debug: bool,
