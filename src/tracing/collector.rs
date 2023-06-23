@@ -58,7 +58,7 @@ impl EventCollector {
             let should_collect = match self.allowed_targets {
                 AllowedTargets::All => true,
                 AllowedTargets::Selected(ref selection) => {
-                    selection.contains(&event.target)
+                    selection.iter().any(|target| { event.target.starts_with(target) })
                 }
             };
             if should_collect {
