@@ -12,6 +12,7 @@ categories = ["gui", "game-development"]
 [dependencies]
 chrono = { version = "0.4", default-features = false, features = ["clock"] }
 egui = "0.22"
+serde = { version = "1.0.164", features = ["derive"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 unicode-segmentation = "1.10"
