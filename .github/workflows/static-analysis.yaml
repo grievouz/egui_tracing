@@ -2,9 +2,9 @@ name: static-analysis
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   clippy-check:
@@ -15,13 +15,6 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: rustup component add clippy
       - run: cargo clippy
-  cargo-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: Swatinem/rust-cache@v2
-      - uses: dtolnay/rust-toolchain@stable
-      - run: cargo check --all-targets
   cargo-audit:
     runs-on: ubuntu-latest
     steps:
