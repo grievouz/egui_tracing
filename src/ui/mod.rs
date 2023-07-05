@@ -10,7 +10,7 @@ use egui::{Color32, Label, Response, TextStyle, Widget};
 use self::color::ToColor32;
 use self::components::level_menu_button::LevelFilterMenuButton;
 use self::components::table::Table;
-use self::components::table_header::{TableHeader};
+use self::components::table_header::TableHeader;
 use self::state::LogsState;
 use self::time::SpecificFormats;
 use crate::string::Ellipse;

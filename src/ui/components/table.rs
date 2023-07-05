@@ -18,7 +18,7 @@ impl<'a> Table<'a> {
         self.header_height = Some(header_height);
         self
     }
-    
+
     pub fn add_header(mut self, header: TableHeader<'a>) -> Self {
         self.header_height = header.min_width;
         self.headers.push(header);

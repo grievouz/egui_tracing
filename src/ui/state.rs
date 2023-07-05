@@ -1,5 +1,5 @@
+use serde::{Deserialize, Serialize};
 use tracing::Level;
-use serde::{Serialize, Deserialize};
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct LogsState {

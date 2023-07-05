@@ -5,8 +5,7 @@ use std::{
 };
 use tracing::{
     field::{Field, Visit},
-    Event, Subscriber,
-    Level
+    Event, Level, Subscriber,
 };
 use tracing_subscriber::{layer::Context, registry::LookupSpan, Layer};
 
@@ -15,7 +14,7 @@ use super::event::CapturedEvent;
 #[derive(Clone, Debug)]
 pub enum AllowedTargets {
     All,
-    Selected(Vec<String>)
+    Selected(Vec<String>),
 }
 
 #[derive(Debug, Clone)]
@@ -26,16 +25,12 @@ pub struct EventCollector {
 }
 
 impl EventCollector {
-
     pub fn new() -> Self {
         Self::default()
     }
 
     pub fn with_level(self, level: Level) -> Self {
-        Self {
-            level,
-            ..self
-        }
+        Self { level, ..self }
     }
     pub fn allowed_targets(self, allowed_targets: AllowedTargets) -> Self {
         Self {
@@ -57,9 +52,9 @@ impl EventCollector {
         if event.level >= self.level {
             let should_collect = match self.allowed_targets {
                 AllowedTargets::All => true,
-                AllowedTargets::Selected(ref selection) => {
-                    selection.iter().any(|target| { event.target.starts_with(target) })
-                }
+                AllowedTargets::Selected(ref selection) => selection
+                    .iter()
+                    .any(|target| event.target.starts_with(target)),
             };
             if should_collect {
                 self.events.lock().unwrap().push(event);
@@ -73,7 +68,7 @@ impl Default for EventCollector {
         Self {
             allowed_targets: AllowedTargets::All,
             events: Arc::new(Mutex::new(Vec::new())),
-            level: Level::TRACE  // capture everything by default.
+            level: Level::TRACE, // capture everything by default.
         }
     }
 }

@@ -7,7 +7,7 @@ pub trait Ellipse {
 impl Ellipse for String {
     fn truncate_graphemes(&self, len: usize) -> String {
         if self.len() <= len {
-            return self.clone()
+            return self.clone();
         }
 
         let mut trucated = self

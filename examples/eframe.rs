@@ -13,7 +13,12 @@ fn main() {
         initial_window_size: Some(egui::vec2(800.0, 500.0)),
         ..Default::default()
     };
-    eframe::run_native("tracing", options, Box::new(|_cc| Box::new(MyApp::new(collector)))).unwrap();
+    eframe::run_native(
+        "tracing",
+        options,
+        Box::new(|_cc| Box::new(MyApp::new(collector))),
+    )
+    .unwrap();
 }
 
 pub struct MyApp {
