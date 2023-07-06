@@ -1,15 +1,13 @@
-use chrono::Local;
-use std::{
-    collections::BTreeMap,
-    sync::{Arc, Mutex},
-};
-use tracing::{
-    field::{Field, Visit},
-    Event, Level, Subscriber,
-};
-use tracing_subscriber::{layer::Context, registry::LookupSpan, Layer};
+use std::sync::{Arc, Mutex};
 
-use super::event::CapturedEvent;
+use tracing::{Event, Level, Subscriber};
+#[cfg(feature = "log")]
+use tracing_log::NormalizeEvent;
+use tracing_subscriber::layer::Context;
+use tracing_subscriber::registry::LookupSpan;
+use tracing_subscriber::Layer;
+
+use super::event::CollectedEvent;
 
 #[derive(Clone, Debug)]
 pub enum AllowedTargets {
@@ -21,7 +19,7 @@ pub enum AllowedTargets {
 pub struct EventCollector {
     allowed_targets: AllowedTargets,
     level: Level,
-    events: Arc<Mutex<Vec<CapturedEvent>>>,
+    events: Arc<Mutex<Vec<CollectedEvent>>>,
 }
 
 impl EventCollector {
@@ -32,6 +30,7 @@ impl EventCollector {
     pub fn with_level(self, level: Level) -> Self {
         Self { level, ..self }
     }
+
     pub fn allowed_targets(self, allowed_targets: AllowedTargets) -> Self {
         Self {
             allowed_targets,
@@ -39,7 +38,7 @@ impl EventCollector {
         }
     }
 
-    pub fn events(&self) -> Vec<CapturedEvent> {
+    pub fn events(&self) -> Vec<CollectedEvent> {
         self.events.lock().unwrap().clone()
     }
 
@@ -48,7 +47,7 @@ impl EventCollector {
         *events = Vec::new();
     }
 
-    fn collect(&self, event: CapturedEvent) {
+    fn collect(&self, event: CollectedEvent) {
         if event.level >= self.level {
             let should_collect = match self.allowed_targets {
                 AllowedTargets::All => true,
@@ -78,24 +77,13 @@ where
     S: Subscriber + for<'a> LookupSpan<'a>,
 {
     fn on_event(&self, event: &Event<'_>, _ctx: Context<'_, S>) {
+        #[cfg(feature = "log")]
+        let normalized_meta = event.normalized_metadata();
+        #[cfg(feature = "log")]
+        let meta = normalized_meta.as_ref().unwrap_or_else(|| event.metadata());
+        #[cfg(not(feature = "log"))]
         let meta = event.metadata();
-        let mut fields = BTreeMap::new();
-        let mut visitor = FieldVisitor(&mut fields);
-        event.record(&mut visitor);
-        self.collect(CapturedEvent {
-            level: meta.level().to_owned(),
-            time: Local::now(),
-            target: meta.target().into(),
-            fields,
-        });
-    }
-}
 
-struct FieldVisitor<'a>(&'a mut BTreeMap<String, String>);
-
-impl<'a> Visit for FieldVisitor<'a> {
-    fn record_debug(&mut self, field: &Field, value: &dyn std::fmt::Debug) {
-        self.0
-            .insert(field.name().to_string(), format!("{:?}", value));
+        self.collect(CollectedEvent::new(event, meta));
     }
 }

@@ -1,43 +1,26 @@
-use egui::{Ui, Widget};
+use egui::{vec2, Response, Sense, Ui};
 
-pub struct TableHeader<'a> {
-    pub min_width: Option<f32>,
-    child: Option<Box<dyn FnOnce(&mut Ui) + 'a>>,
-}
+pub static PADDING_LEFT: f32 = 4.0;
 
-impl<'a> TableHeader<'a> {
-    pub fn set_child(mut self, child: impl FnOnce(&mut Ui) + 'a) -> Self {
-        self.child = Some(Box::new(child));
-        self
-    }
-
-    pub fn set_min_width(mut self, width: f32) -> Self {
-        self.min_width = Some(width);
-        self
-    }
-}
-
-impl<'a> Default for TableHeader<'a> {
-    fn default() -> Self {
-        Self {
-            min_width: None,
-            child: None,
+pub fn table_header(
+    ui: &mut Ui,
+    min_width: Option<f32>,
+    content: impl FnOnce(&mut Ui),
+) -> Response {
+    ui.horizontal(|ui| {
+        if let Some(min_width) = min_width {
+            ui.set_width(min_width);
         }
-    }
-}
+        let available_space = ui.available_size_before_wrap();
+        let size = vec2(PADDING_LEFT, available_space.y);
+        let (rect, response) = ui.allocate_at_least(size, Sense::hover());
+        if ui.is_rect_visible(response.rect) {
+            let stroke = ui.visuals().widgets.noninteractive.bg_stroke;
+            let painter = ui.painter();
+            painter.vline(rect.left(), rect.top()..=rect.bottom(), stroke);
+        }
 
-impl<'a> Widget for TableHeader<'a> {
-    fn ui(self, ui: &mut egui::Ui) -> egui::Response {
-        ui.horizontal(|ui| {
-            if let Some(min_width) = self.min_width {
-                ui.set_min_width(min_width);
-            }
-            ui.separator();
-            ui.add_space(2.0);
-            if let Some(child) = self.child {
-                child(ui);
-            }
-        })
-        .response
-    }
+        content(ui);
+    })
+    .response
 }

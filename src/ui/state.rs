@@ -1,18 +1,31 @@
+use std::collections::HashSet;
+
+use globset::Glob;
 use serde::{Deserialize, Serialize};
+use serde_with::serde_as;
 use tracing::Level;
 
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct LogsState {
     pub level_filter: LevelFilter,
+    pub target_filter: TargetFilter,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LevelFilter {
     pub trace: bool,
     pub debug: bool,
     pub info: bool,
     pub warn: bool,
     pub error: bool,
+}
+
+#[serde_as]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct TargetFilter {
+    pub input: String,
+    #[serde_as(as = "HashSet<_>")]
+    pub targets: HashSet<Glob>,
 }
 
 impl Default for LevelFilter {
