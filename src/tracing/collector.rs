@@ -48,7 +48,7 @@ impl EventCollector {
     }
 
     fn collect(&self, event: CollectedEvent) {
-        if event.level >= self.level {
+        if event.level <= self.level {
             let should_collect = match self.allowed_targets {
                 AllowedTargets::All => true,
                 AllowedTargets::Selected(ref selection) => selection
