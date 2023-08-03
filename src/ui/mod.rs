@@ -8,16 +8,18 @@ use egui::{Color32, Label, Response, TextStyle, Widget};
 use globset::GlobSetBuilder;
 
 use self::color::ToColor32;
+use self::components::common::CommonProps;
 use self::components::constants;
-use self::components::level_menu_button::level_menu_button;
-use self::components::table::table;
-use self::components::table_cell::table_cell;
-use self::components::table_header::table_header;
-use self::components::target_menu_button::target_menu_button;
+use self::components::level_menu_button::LevelMenuButton;
+use self::components::table::Table;
+use self::components::table_cell::TableCell;
+use self::components::table_header::TableHeader;
+use self::components::target_menu_button::TargetMenuButton;
 use self::state::LogsState;
 use crate::string::Ellipse;
 use crate::time::DateTimeFormatExt;
 use crate::tracing::collector::EventCollector;
+use crate::tracing::CollectedEvent;
 
 pub struct Logs {
     collector: EventCollector,
@@ -32,15 +34,17 @@ impl Logs {
 
 impl Widget for Logs {
     fn ui(self, ui: &mut egui::Ui) -> Response {
-        let id = ui.id();
         let state = ui.memory_mut(|mem| {
+            let state_mem_id = ui.id();
             mem.data
-                .get_persisted_mut_or_insert_with(id, || Arc::new(Mutex::new(LogsState::default())))
+                .get_temp_mut_or_insert_with(state_mem_id, || {
+                    Arc::new(Mutex::new(LogsState::default()))
+                })
                 .clone()
         });
         let mut state = state.lock().unwrap();
-        let events = self.collector.events();
 
+        // TODO: cache the globset
         let glob = {
             let mut glob = GlobSetBuilder::new();
             for target in state.target_filter.targets.clone() {
@@ -49,6 +53,7 @@ impl Widget for Logs {
             glob.build().unwrap()
         };
 
+        let events = self.collector.events();
         let filtered_events = events
             .iter()
             .filter(|event| state.level_filter.get(event.level) && !glob.is_match(&event.target))
@@ -57,47 +62,73 @@ impl Widget for Logs {
         let row_height = constants::SEPARATOR_SPACING
             + ui.style().text_styles.get(&TextStyle::Small).unwrap().size;
 
-        table(
-            ui,
-            row_height,
-            filtered_events.iter(),
-            || {
+        Table::default()
+            .on_clear(|| {
                 self.collector.clear();
-            },
-            |ui| {
-                table_header(ui, Some(100.0), |ui| {
-                    ui.label("Time");
-                });
-                table_header(ui, Some(80.0), |ui| {
-                    level_menu_button(ui, &mut state.level_filter)
-                });
-                table_header(ui, Some(120.0), |ui| {
-                    target_menu_button(ui, &mut state.target_filter)
-                });
-                table_header(ui, None, |ui| {
-                    ui.label("Message");
-                });
-            },
-            |ui, event| {
-                table_cell(ui, 100.0, |ui| {
-                    ui.colored_label(Color32::GRAY, event.time.format_short())
-                        .on_hover_text(event.time.format_detailed());
-                });
-                table_cell(ui, 80.0, |ui| {
-                    ui.colored_label(event.level.to_color32(), event.level.as_str());
-                });
-                table_cell(ui, 120.0, |ui| {
-                    ui.colored_label(Color32::GRAY, event.target.truncate_graphemes(18))
-                        .on_hover_text(&event.target);
-                });
-                table_cell(ui, 120.0, |ui| {
-                    let message = event.fields.get("message").unwrap();
+            })
+            .header(|ui| {
+                TableHeader::default()
+                    .common_props(CommonProps::default().min_width(100.0))
+                    .children(|ui| {
+                        ui.label("Time");
+                    })
+                    .show(ui);
+                TableHeader::default()
+                    .common_props(CommonProps::default().min_width(80.0))
+                    .children(|ui| {
+                        LevelMenuButton::default()
+                            .state(&mut state.level_filter)
+                            .show(ui)
+                    })
+                    .show(ui);
+                TableHeader::default()
+                    .common_props(CommonProps::default().min_width(120.0))
+                    .children(|ui| {
+                        TargetMenuButton::default()
+                            .state(&mut state.target_filter)
+                            .show(ui)
+                    })
+                    .show(ui);
+                TableHeader::default()
+                    .common_props(CommonProps::default().min_width(120.0))
+                    .children(|ui| {
+                        ui.label("Message");
+                    })
+                    .show(ui);
+            })
+            .row_height(row_height)
+            .row(|ui, event: &CollectedEvent| {
+                TableCell::default()
+                    .common_props(CommonProps::default().min_width(100.0))
+                    .children(|ui| {
+                        ui.colored_label(Color32::GRAY, event.time.format_short())
+                            .on_hover_text(event.time.format_detailed());
+                    })
+                    .show(ui);
+                TableCell::default()
+                    .common_props(CommonProps::default().min_width(80.0))
+                    .children(|ui| {
+                        ui.colored_label(event.level.to_color32(), event.level.as_str());
+                    })
+                    .show(ui);
+                TableCell::default()
+                    .common_props(CommonProps::default().min_width(120.0))
+                    .children(|ui| {
+                        ui.colored_label(Color32::GRAY, event.target.truncate_graphemes(18))
+                            .on_hover_text(&event.target);
+                    })
+                    .show(ui);
+                TableCell::default()
+                    .common_props(CommonProps::default().min_width(120.0))
+                    .children(|ui| {
+                        let message = event.fields.get("message").unwrap();
 
-                    ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
-                    ui.add(Label::new(message).wrap(false))
-                        .on_hover_text(message);
-                });
-            },
-        )
+                        ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
+                        ui.add(Label::new(message).wrap(false))
+                            .on_hover_text(message);
+                    })
+                    .show(ui);
+            })
+            .show(ui, filtered_events.iter())
     }
 }

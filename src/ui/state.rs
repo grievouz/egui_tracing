@@ -1,8 +1,5 @@
-use std::collections::HashSet;
-
 use globset::Glob;
 use serde::{Deserialize, Serialize};
-use serde_with::serde_as;
 use tracing::Level;
 
 #[derive(Debug, Default, Serialize, Deserialize)]
@@ -20,12 +17,10 @@ pub struct LevelFilter {
     pub error: bool,
 }
 
-#[serde_as]
-#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Serialize, Deserialize, Hash)]
 pub struct TargetFilter {
     pub input: String,
-    #[serde_as(as = "HashSet<_>")]
-    pub targets: HashSet<Glob>,
+    pub targets: Vec<Glob>,
 }
 
 impl Default for LevelFilter {

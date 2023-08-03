@@ -3,7 +3,7 @@ use std::fmt::Debug;
 
 use chrono::{DateTime, Local};
 use tracing::field::{Field, Visit};
-use tracing::{Event, Metadata};
+use tracing::{Event, Level, Metadata};
 
 #[derive(Debug, Clone)]
 pub struct CollectedEvent {
