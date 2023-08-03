@@ -12,6 +12,7 @@ categories = ["gui", "game-development"]
 [features]
 default = ["log"]
 log = ["tracing-log", "tracing-subscriber/tracing-log"]
+wasmbind = ["chrono/wasmbind"]
 
 [dependencies]
 chrono = { version = "0.4.24", default-features = false, features = ["clock"] }
