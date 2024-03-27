@@ -1,11 +1,11 @@
 [package]
-name = "egui_tracing"
+name = "egui_tracing_rs"
 description = "Integrates tracing and logging with egui for event collection/visualization"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Grievouz <tammo@ronke.dev>"]
 edition = "2021"
 license = "Unlicense"
-repository = "https://github.com/grievouz/egui_tracing"
+repository = "https://github.com/FOSSEC/egui_tracing"
 keywords = ["egui", "tracing", "log"]
 categories = ["gui", "game-development"]
 
@@ -16,7 +16,7 @@ wasmbind = ["chrono/wasmbind"]
 
 [dependencies]
 chrono = { version = "0.4.24", default-features = false, features = ["clock"] }
-egui = "0.22"
+egui = "0.26.2"
 globset = { version = "0.4.10", features = ["serde1"] }
 serde = { version = "1.0.164", default-features = false, features = ["derive"] }
 tracing = { version = "0.1", default-features = false }
@@ -25,4 +25,4 @@ tracing-subscriber = { version = "0.3", default-features = false, features = ["r
 unicode-segmentation = "1.10"
 
 [dev-dependencies]
-eframe = "0.22"
+eframe = "0.26.2"

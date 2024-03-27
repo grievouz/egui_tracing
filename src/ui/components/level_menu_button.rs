@@ -16,10 +16,6 @@ impl<'a> LevelMenuButton<'a> {
         self
     }
 
-    pub fn common_props(mut self, v: CommonProps) -> Self {
-        self.common_props = Some(v);
-        self
-    }
 
     pub fn show(mut self, ui: &mut Ui) {
         let state = self.state.as_mut().unwrap();
