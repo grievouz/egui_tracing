@@ -9,8 +9,9 @@ fn main() {
         .init();
 
     let options = eframe::NativeOptions {
-        resizable: true,
-        initial_window_size: Some(egui::vec2(800.0, 500.0)),
+        viewport: egui::ViewportBuilder::default()
+            .with_inner_size(egui::vec2(800.0, 500.0))
+            .with_resizable(true),
         ..Default::default()
     };
     eframe::run_native(
@@ -18,7 +19,7 @@ fn main() {
         options,
         Box::new(|_cc| Box::new(MyApp::new(collector))),
     )
-    .unwrap();
+        .unwrap();
 }
 
 pub struct MyApp {
