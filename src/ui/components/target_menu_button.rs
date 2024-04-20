@@ -15,7 +15,7 @@ impl<'a> TargetMenuButton<'a> {
         self
     }
 
-    pub fn show(mut self, ui: &mut Ui) {
+    pub fn show(self, ui: &mut Ui) {
         let state = self.state.unwrap();
         ui.menu_button("Target", |ui| {
             ui.label("Target Filter");
