@@ -1,0 +1,10 @@
+[package]
+name = "example-eframe-wasm32"
+version = "0.2.2"
+edition = "2021"
+publish = false
+
+[dependencies]
+eframe = { version = "0.27.2", default-features = false, features = ["wgpu"] }
+egui_tracing = { path = "../../egui-tracing", features = ["wasmbind", "reexport"] }
+wasm-bindgen-futures = "0.4.42"

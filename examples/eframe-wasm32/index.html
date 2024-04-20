@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <style>
+      html {
+        /* Remove touch delay: */
+        touch-action: manipulation;
+      }
+
+      body {
+        /* Light mode background color for what is not covered by the egui canvas,
+          or where the egui canvas is translucent. */
+        background: #909090;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        body {
+          /* Dark mode background color for what is not covered by the egui canvas,
+              or where the egui canvas is translucent. */
+          background: #404040;
+        }
+      }
+
+      /* Allow canvas to fill entire web page: */
+      html,
+      body {
+        overflow: hidden;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100%;
+        width: 100%;
+      }
+
+      /* Position canvas in center-top.
+      This is rather arbitrarily chosen.
+      In particular, it seems like both Chromium and Firefox will still align
+      the canvas on the physical pixel grid, which is required to get
+      pixel-perfect (non-blurry) rendering in egui.
+      See https://github.com/emilk/egui/issues/4241 for more */
+      canvas {
+        margin-right: auto;
+        margin-left: auto;
+        display: block;
+        position: absolute;
+        top: 0%;
+        left: 50%;
+        transform: translate(-50%, 0%);
+      }
+    </style>
+  </head>
+  <body style="margin: 0px">
+    <canvas id="eframe-canvas"></canvas>
+  </body>
+</html>
