@@ -4,8 +4,12 @@
 
 [![Crates.io](https://img.shields.io/crates/v/egui_tracing)](https://crates.io/crates/egui_tracing)
 [![Documentation](https://docs.rs/egui_tracing/badge.svg)](https://docs.rs/egui_tracing)
+[![Apache](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://github.com/grievouz/egui_tracing/blob/main/LICENSE)
+
 
 `egui_tracing` is a Rust library that integrates tracing and logging capabilities with the [egui](https://github.com/emilk/egui) immediate mode graphical user interface library. It supports both the [tracing](https://crates.io/crates/tracing) and [log](https://crates.io/crates/log) crates for efficient and flexible event collection and visualization.
+
+[Click to view the web demo](https://grievouz.github.io/egui_tracing/)
 
 ## Installation
 
