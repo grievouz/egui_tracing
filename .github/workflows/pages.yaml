@@ -34,7 +34,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - run: rustup target add wasm32-unknown-unknown
       - run: cargo install trunk
-      - run: trunk build
+      - run: trunk build --public-url ./
         working-directory: ./examples/eframe-wasm32
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
