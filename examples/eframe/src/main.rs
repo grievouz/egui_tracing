@@ -19,7 +19,7 @@ fn main() {
     eframe::run_native(
         "tracing",
         options,
-        Box::new(|_cc| Box::new(MyApp::new(collector))),
+        Box::new(|_cc| Ok(Box::new(MyApp::new(collector)))),
     )
     .unwrap();
 }

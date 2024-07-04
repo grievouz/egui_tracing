@@ -6,4 +6,4 @@ publish = false
 
 [dependencies]
 egui_tracing = { path = "../../egui-tracing", features = [ "reexport" ]}
-eframe = "0.27.2"
+eframe = "0.28.0"
