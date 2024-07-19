@@ -8,7 +8,7 @@ publish = false
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-eframe = { version = "0.28.0", default-features = false, features = ["glow"] }
+eframe = { workspace = true, default-features = false, features = ["glow"] }
 egui_tracing = { path = "../../egui-tracing", features = [
     "wasmbind",
     "reexport",

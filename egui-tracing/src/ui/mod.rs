@@ -4,7 +4,7 @@ mod state;
 
 use std::sync::{Arc, Mutex};
 
-use egui::{Color32, Label, Response, TextStyle, TextWrapMode, Widget};
+use egui::{Label, Response, TextStyle, TextWrapMode, Widget};
 use globset::GlobSetBuilder;
 
 use self::color::ToColor32;
@@ -101,7 +101,7 @@ impl Widget for Logs {
                 TableCell::default()
                     .common_props(CommonProps::new().min_width(100.0))
                     .children(|ui| {
-                        ui.colored_label(Color32::GRAY, event.time.format_short())
+                        ui.label(event.time.format_short())
                             .on_hover_text(event.time.format_detailed());
                     })
                     .show(ui);
@@ -114,7 +114,7 @@ impl Widget for Logs {
                 TableCell::default()
                     .common_props(CommonProps::new().min_width(120.0))
                     .children(|ui| {
-                        ui.colored_label(Color32::GRAY, event.target.truncate_graphemes(18))
+                        ui.label(event.target.truncate_graphemes(18))
                             .on_hover_text(&event.target);
                     })
                     .show(ui);
@@ -123,7 +123,7 @@ impl Widget for Logs {
                     .children(|ui| {
                         let message = event.fields.get("message").unwrap();
 
-                        ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
+                        //ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
                         ui.add(Label::new(message).wrap_mode(TextWrapMode::Extend))
                             .on_hover_text(message);
                     })

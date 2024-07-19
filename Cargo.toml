@@ -1,3 +1,11 @@
 [workspace]
 resolver = "1"
-members = ["egui-tracing", "examples/eframe", "examples/eframe-wasm32"]
+members = [
+    "egui-tracing",
+    "examples/eframe",
+    "examples/eframe-wasm32",
+]
+
+[workspace.dependencies]
+eframe = "~0.28.0"
+egui = "~0.28.0"
