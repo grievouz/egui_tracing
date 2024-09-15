@@ -37,5 +37,3 @@ jobs:
           sed -i 's/version = "[^"]*"/version = "$version"/g' examples/eframe-wasm32/Cargo.toml
           git add .
           git commit -m "chore: update all version references"
-
-"
