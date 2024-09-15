@@ -68,13 +68,13 @@ impl Widget for Logs {
             })
             .header(|ui| {
                 TableHeader::default()
-                    .common_props(CommonProps::default().min_width(100.0))
+                    .common_props(CommonProps::new().min_width(100.0))
                     .children(|ui| {
                         ui.label("Time");
                     })
                     .show(ui);
                 TableHeader::default()
-                    .common_props(CommonProps::default().min_width(80.0))
+                    .common_props(CommonProps::new().min_width(80.0))
                     .children(|ui| {
                         LevelMenuButton::default()
                             .state(&mut state.level_filter)
@@ -82,7 +82,7 @@ impl Widget for Logs {
                     })
                     .show(ui);
                 TableHeader::default()
-                    .common_props(CommonProps::default().min_width(120.0))
+                    .common_props(CommonProps::new().min_width(120.0))
                     .children(|ui| {
                         TargetMenuButton::default()
                             .state(&mut state.target_filter)
@@ -90,7 +90,7 @@ impl Widget for Logs {
                     })
                     .show(ui);
                 TableHeader::default()
-                    .common_props(CommonProps::default().min_width(120.0))
+                    .common_props(CommonProps::new().min_width(120.0))
                     .children(|ui| {
                         ui.label("Message");
                     })
@@ -99,27 +99,27 @@ impl Widget for Logs {
             .row_height(row_height)
             .row(|ui, event: &CollectedEvent| {
                 TableCell::default()
-                    .common_props(CommonProps::default().min_width(100.0))
+                    .common_props(CommonProps::new().min_width(100.0))
                     .children(|ui| {
                         ui.colored_label(Color32::GRAY, event.time.format_short())
                             .on_hover_text(event.time.format_detailed());
                     })
                     .show(ui);
                 TableCell::default()
-                    .common_props(CommonProps::default().min_width(80.0))
+                    .common_props(CommonProps::new().min_width(80.0))
                     .children(|ui| {
                         ui.colored_label(event.level.to_color32(), event.level.as_str());
                     })
                     .show(ui);
                 TableCell::default()
-                    .common_props(CommonProps::default().min_width(120.0))
+                    .common_props(CommonProps::new().min_width(120.0))
                     .children(|ui| {
                         ui.colored_label(Color32::GRAY, event.target.truncate_graphemes(18))
                             .on_hover_text(&event.target);
                     })
                     .show(ui);
                 TableCell::default()
-                    .common_props(CommonProps::default().min_width(120.0))
+                    .common_props(CommonProps::new().min_width(120.0))
                     .children(|ui| {
                         let message = event.fields.get("message").unwrap();
 
