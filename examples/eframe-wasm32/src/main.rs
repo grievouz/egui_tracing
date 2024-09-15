@@ -20,7 +20,7 @@ fn main() {
             .start(
                 "eframe-canvas",
                 web_options,
-                Box::new(|_cc| Box::new(MyApp::new(collector))),
+                Box::new(|_cc| Ok(Box::new(MyApp::new(collector)))),
             )
             .await
             .expect("failed to start eframe");
