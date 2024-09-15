@@ -27,7 +27,7 @@ egui_tracing = "0.2.2"
 To run the example application, use the following command:
 
 ```sh
-cargo run example-eframe
+cargo run --bin example-eframe
 ```
 
 ## Contributing
