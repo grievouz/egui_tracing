@@ -27,7 +27,7 @@ jobs:
       - name: Update all version references
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR: ${{ steps.release-plz.outputs.pr }}
+          RELEASES: ${{ steps.release-plz.outputs.releases }}
         run: |
           set -e
 
@@ -37,5 +37,3 @@ jobs:
           sed -i 's/version = "[^"]*"/version = "$version"/g' examples/eframe-wasm32/Cargo.toml
           git add .
           git commit -m "chore: update all version references"
-
-"
