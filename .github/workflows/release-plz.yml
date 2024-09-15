@@ -31,9 +31,10 @@ jobs:
         run: |
           set -e
 
-          version=${{ fromJSON(steps.release-plz.outputs.releases)[0].version }}
-          sed -i 's/egui_tracing = "[^"]*"/egui_tracing = "$version"/g' README.md
-          sed -i 's/version = "[^"]*"/version = "$version"/g' examples/eframe/Cargo.toml
-          sed -i 's/version = "[^"]*"/version = "$version"/g' examples/eframe-wasm32/Cargo.toml
+          release_version=$(echo "$RELEASES" | jq -r '.[0].version')
+          sed -i 's/egui_tracing = "[^"]*"/egui_tracing = "$release_version"/g' README.md
+          sed -i 's/version = "[^"]*"/version = "$release_version"/g' examples/eframe/Cargo.toml
+          sed -i 's/version = "[^"]*"/version = "$release_version"/g' examples/eframe-wasm32/Cargo.toml
           git add .
           git commit -m "chore: update all version references"
+          git push
