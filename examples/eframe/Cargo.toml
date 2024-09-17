@@ -7,3 +7,6 @@ publish = false
 [dependencies]
 egui_tracing = { path = "../../egui-tracing", features = [ "reexport" ]}
 eframe.workspace = true
+
+[features]
+default = ["eframe/default"]

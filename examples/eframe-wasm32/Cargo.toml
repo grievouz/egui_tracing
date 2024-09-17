@@ -8,7 +8,7 @@ publish = false
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-eframe = { workspace = true, default-features = false, features = ["glow"] }
+eframe = { workspace = true, features = ["glow"] }
 egui_tracing = { path = "../../egui-tracing", features = [
     "wasmbind",
     "reexport",
@@ -19,3 +19,6 @@ wasm-bindgen-futures = "0.4.42"
 [dependencies.getrandom]
 version = "*"
 features = ["js"]
+
+[features]
+default = ["eframe/default"]
