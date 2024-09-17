@@ -20,22 +20,8 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
       - name: Run release-plz
+        id: release-plz
         uses: MarcoIeni/release-plz-action@v0.5
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_PLZ_TOKEN }}
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-      - name: Update all version references
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASES: ${{ steps.release-plz.outputs.releases }}
-        run: |
-          set -e
-
-          echo "$RELEASES"
-          release_version=$(echo "$RELEASES" | jq -r '.[0].version')
-          sed -i "s/egui_tracing = \"[^\"]*\"/egui_tracing = \"${release_version}\"/g" README.md
-          sed -i "s/version = \"[^\"]*\"/version = \"${release_version}\"/g" examples/eframe/Cargo.toml
-          sed -i "s/version = \"[^\"]*\"/version = \"${release_version}\"/g" examples/eframe-wasm32/Cargo.toml
-          git add .
-          git commit -m "chore: update all version references"
-          git push
