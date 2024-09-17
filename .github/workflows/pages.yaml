@@ -33,9 +33,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Add wasm target
         run: rustup target add wasm32-unknown-unknown
-      - name: Install cargo-binstall
-        uses: cargo-bins/cargo-binstall@v1.10.5
-      - run: cargo binstall --no-confirm just wasm-pack
+      - run: cargo install just
+      - run: cargo install wasm-pack
       - run: just build
         working-directory: ./examples/eframe-wasm32
       - name: Upload artifact
