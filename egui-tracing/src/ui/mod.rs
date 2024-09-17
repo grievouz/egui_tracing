@@ -121,29 +121,30 @@ impl Widget for Logs {
                 TableCell::default()
                     .common_props(CommonProps::new().min_width(120.0))
                     .children(|ui| {
-                        let mut short_message = String::new()
-                            + event.fields.get("message")
-                                .map_or("", |msg| msg.as_str());
-                        let mut complete_message = String::new()
-                            + event.fields.get("message")
-                                .map_or("", |msg| msg.as_str());
-                        for ff in event.fields.iter() {
-                            if ff.0 == "message" {
-                                continue;
-                            }
-                            if ff.0.starts_with("log.") {
-                                continue;
-                            }
-                            complete_message += format!("\n {}: {}", ff.0, ff.1).as_str();
-                            short_message += format!(", {}: {}", ff.0, ff.1).as_str();
+                        let mut short_message = String::new();
+                        let mut complete_message = String::new();
+                        let mut log_message = String::new();
+
+                        if let Some(msg) = event.fields.get("message") {
+                            let msg = msg.trim();
+                            short_message.push_str(msg);
+                            complete_message.push_str(msg);
                         }
-                        complete_message += "\n\n";
-                        for ff in event.fields.iter() {
-                            if !ff.0.starts_with("log.") {
+
+                        for (key, value) in &event.fields {
+                            if key == "message" {
                                 continue;
                             }
-                            complete_message += format!("\n {}: {}", ff.0, ff.1).as_str();
+                            if key.starts_with("log.") {
+                                log_message.push_str(&format!("\n {}: {}", key, value));
+                            } else {
+                                short_message.push_str(&format!(", {}: {}", key, value));
+                                complete_message.push_str(&format!("\n {}: {}", key, value));
+                            }
                         }
+
+                        complete_message.push_str("\n\n");
+                        complete_message.push_str(&log_message);
 
                         ui.add(Label::new(short_message).wrap_mode(TextWrapMode::Extend))
                             .on_hover_text(complete_message);
