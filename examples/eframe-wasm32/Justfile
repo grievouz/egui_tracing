@@ -1,0 +1,6 @@
+build:
+    wasm-pack build -t web -d dist --release --no-pack --no-typescript
+    cp index.html dist/
+
+serve:
+    miniserve --index index.html dist

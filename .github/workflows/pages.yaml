@@ -31,9 +31,12 @@ jobs:
         uses: actions/configure-pages@v5
       - uses: Swatinem/rust-cache@v2
       - uses: dtolnay/rust-toolchain@stable
-      - run: rustup target add wasm32-unknown-unknown
-      - run: cargo install trunk
-      - run: trunk build --public-url ./
+      - name: Add wasm target
+        run: rustup target add wasm32-unknown-unknown
+      - name: Install cargo-binstall
+        run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+      - run: cargo binstall --no-confirm just wasm-pack
+      - run: just build
         working-directory: ./examples/eframe-wasm32
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

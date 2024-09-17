@@ -1,7 +1,3 @@
 [workspace]
 resolver = "1"
-members = [
-    "egui-tracing",
-    "examples/eframe",
-    "examples/eframe-wasm32",
-]
+members = ["egui-tracing", "examples/eframe", "examples/eframe-wasm32"]

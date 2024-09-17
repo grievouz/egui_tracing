@@ -1,5 +1,9 @@
+<!DOCTYPE html>
 <html>
   <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!-- Disable zooming: -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <style>
       html {
         /* Remove touch delay: */
@@ -44,6 +48,13 @@
     </style>
   </head>
   <body>
+    <script type="module">
+      import init from "./example_eframe_wasm32.js";
+      async function run() {
+        await init({});
+      }
+      run();
+    </script>
     <canvas id="eframe-canvas"></canvas>
   </body>
 </html>

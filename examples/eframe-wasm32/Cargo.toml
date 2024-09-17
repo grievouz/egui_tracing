@@ -4,7 +4,18 @@ version = "0.2.4"
 edition = "2021"
 publish = false
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
-eframe = { version = "0.28.0", default-features = false, features = ["wgpu"] }
-egui_tracing = { path = "../../egui-tracing", features = ["wasmbind", "reexport"] }
+eframe = { version = "0.28.0", default-features = false, features = ["glow"] }
+egui_tracing = { path = "../../egui-tracing", features = [
+    "wasmbind",
+    "reexport",
+] }
+wasm-bindgen = "0.2.93"
 wasm-bindgen-futures = "0.4.42"
+
+[dependencies.getrandom]
+version = "*"
+features = ["js"]
