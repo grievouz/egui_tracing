@@ -34,7 +34,7 @@ jobs:
       - name: Add wasm target
         run: rustup target add wasm32-unknown-unknown
       - name: Install cargo-binstall
-        run: curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+        uses: cargo-bins/cargo-binstall@v1.10.5
       - run: cargo binstall --no-confirm just wasm-pack
       - run: just build
         working-directory: ./examples/eframe-wasm32
