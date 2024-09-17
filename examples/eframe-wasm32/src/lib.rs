@@ -5,8 +5,9 @@ use egui_tracing::tracing_subscriber::layer::SubscriberExt;
 use egui_tracing::tracing_subscriber::util::SubscriberInitExt;
 use wasm_bindgen::prelude::*;
 
+#[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
-pub fn main() {
+pub fn start() {
     let collector = egui_tracing::EventCollector::default();
     tracing_subscriber::registry()
         .with(collector.clone())
