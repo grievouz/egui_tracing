@@ -16,7 +16,7 @@ reexport = []
 
 [dependencies]
 chrono = { version = "~0.4.38", default-features = false, features = ["clock"] }
-egui = "~0.28.0"
+egui.workspace = true
 globset = { version = "~0.4.15", features = ["serde1"] }
 serde = { version = "~1.0.210", default-features = false, features = ["derive"] }
 tracing = { version = "~0.1.40", default-features = false }

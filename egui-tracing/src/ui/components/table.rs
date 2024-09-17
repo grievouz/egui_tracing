@@ -1,6 +1,6 @@
 use std::slice::Iter;
 
-use egui::{Color32, Response, Ui};
+use egui::{Response, Ui};
 
 use super::constants::SEPARATOR_SPACING;
 
@@ -46,7 +46,7 @@ impl<'a, T> Table<'a, T> {
     pub fn show(self, ui: &mut Ui, values: Iter<&T>) -> Response {
         ui.vertical(|ui| {
             ui.horizontal(|ui| {
-                ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
+                //ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
 
                 ui.horizontal(|ui| {
                     (self.header.unwrap())(ui);
@@ -82,7 +82,7 @@ impl<'a, T> Table<'a, T> {
 
             let mut row = self.row.unwrap();
             egui::ScrollArea::vertical()
-                .auto_shrink([false, false])
+                .auto_shrink([true, false])
                 .stick_to_bottom(true)
                 .show_rows(
                     ui,
