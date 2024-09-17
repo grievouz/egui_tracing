@@ -122,8 +122,6 @@ impl Widget for Logs {
                     .common_props(CommonProps::new().min_width(120.0))
                     .children(|ui| {
                         let message = event.fields.get("message").unwrap();
-
-                        //ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
                         ui.add(Label::new(message).wrap_mode(TextWrapMode::Extend))
                             .on_hover_text(message);
                     })
