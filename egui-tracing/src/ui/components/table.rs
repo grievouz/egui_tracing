@@ -1,53 +1,60 @@
+use std::marker::PhantomData;
 use std::slice::Iter;
 
 use egui::{Response, Ui};
 
 use super::constants::SEPARATOR_SPACING;
+use super::ChildFn;
 
-pub struct Table<'a, T> {
+pub struct Table<OnClearFn, HeaderFn, RowFn, Item> {
     row_height: Option<f32>,
-    on_clear: Option<Box<dyn FnMut() + 'a>>,
-    header: Option<Box<dyn FnMut(&mut Ui) + 'a>>,
-    row: Option<Box<dyn FnMut(&mut Ui, &T) + 'a>>,
+    on_clear: Option<OnClearFn>,
+    header: Option<HeaderFn>,
+    row: Option<RowFn>,
+    _marker: PhantomData<Item>,
 }
 
-impl<'a, T> Default for Table<'a, T> {
+impl<OnClearFn, HeaderFn, RowFn, Item> Default for Table<OnClearFn, HeaderFn, RowFn, Item> {
     fn default() -> Self {
         Self {
             row_height: None,
             on_clear: None,
             header: None,
             row: None,
+            _marker: PhantomData,
         }
     }
 }
 
-impl<'a, T> Table<'a, T> {
+impl<OnClearFn, HeaderFn, RowFn, Item> Table<OnClearFn, HeaderFn, RowFn, Item>
+where
+    OnClearFn: FnMut(),
+    HeaderFn: ChildFn,
+    RowFn: FnMut(&mut Ui, &Item),
+{
     pub fn row_height(mut self, v: f32) -> Self {
         self.row_height = Some(v);
         self
     }
 
-    pub fn on_clear(mut self, v: impl FnMut() + 'a) -> Self {
-        self.on_clear = Some(Box::new(v));
+    pub fn on_clear(mut self, v: OnClearFn) -> Self {
+        self.on_clear = Some(v);
         self
     }
 
-    pub fn header(mut self, v: impl FnMut(&mut Ui) + 'a) -> Self {
-        self.header = Some(Box::new(v));
+    pub fn header(mut self, v: HeaderFn) -> Self {
+        self.header = Some(v);
         self
     }
 
-    pub fn row(mut self, v: impl FnMut(&mut Ui, &T) + 'a) -> Self {
-        self.row = Some(Box::new(v));
+    pub fn row(mut self, v: RowFn) -> Self {
+        self.row = Some(v);
         self
     }
 
-    pub fn show(self, ui: &mut Ui, values: Iter<&T>) -> Response {
+    pub fn show(self, ui: &mut Ui, values: Iter<&Item>) -> Response {
         ui.vertical(|ui| {
             ui.horizontal(|ui| {
-                //ui.style_mut().visuals.override_text_color = Some(Color32::WHITE);
-
                 ui.horizontal(|ui| {
                     (self.header.unwrap())(ui);
                 });

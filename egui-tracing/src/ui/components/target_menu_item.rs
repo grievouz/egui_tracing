@@ -3,20 +3,31 @@ use globset::Glob;
 
 use crate::string::Ellipse;
 
-#[derive(Default)]
-pub struct TargetMenuItem<'a> {
+pub struct TargetMenuItem<'a, T> {
     target: Option<&'a Glob>,
-    on_clicked: Option<Box<dyn FnMut() + 'a>>,
+    on_clicked: Option<T>,
 }
 
-impl<'a> TargetMenuItem<'a> {
+impl<'a, T> Default for TargetMenuItem<'a, T> {
+    fn default() -> Self {
+        Self {
+            target: None,
+            on_clicked: None,
+        }
+    }
+}
+
+impl<'a, T> TargetMenuItem<'a, T>
+where
+    T: FnMut(),
+{
     pub fn target(mut self, v: &'a Glob) -> Self {
         self.target = Some(v);
         self
     }
 
-    pub fn on_clicked(mut self, v: impl FnMut() + 'a) -> Self {
-        self.on_clicked = Some(Box::new(v));
+    pub fn on_clicked(mut self, v: T) -> Self {
+        self.on_clicked = Some(v);
         self
     }
 

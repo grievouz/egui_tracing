@@ -1,0 +1,4 @@
+group_imports = "StdExternalCrate"
+imports_granularity = "Crate"
+imports_layout = "HorizontalVertical"
+max_width = 80

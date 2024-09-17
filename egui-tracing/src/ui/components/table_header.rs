@@ -1,23 +1,35 @@
 use egui::{vec2, Response, Sense, Ui};
 
 use super::common::{set_common_props, CommonProps};
+use super::ChildFn;
 
 pub static PADDING_LEFT: f32 = 4.0;
 
-#[derive(Default)]
-pub struct TableHeader<'a> {
+pub struct TableHeader<T> {
     common_props: Option<CommonProps>,
-    children: Option<Box<dyn FnMut(&mut Ui) + 'a>>,
+    children: Option<T>,
 }
 
-impl<'a> TableHeader<'a> {
+impl<T> Default for TableHeader<T> {
+    fn default() -> Self {
+        Self {
+            common_props: None,
+            children: None,
+        }
+    }
+}
+
+impl<T> TableHeader<T>
+where
+    T: ChildFn,
+{
     pub fn common_props(mut self, v: CommonProps) -> Self {
         self.common_props = Some(v);
         self
     }
 
-    pub fn children(mut self, v: impl FnMut(&mut Ui) + 'a) -> Self {
-        self.children = Some(Box::new(v));
+    pub fn children(mut self, v: T) -> Self {
+        self.children = Some(v);
         self
     }
 
@@ -33,7 +45,7 @@ impl<'a> TableHeader<'a> {
                 painter.vline(rect.left(), rect.top()..=rect.bottom(), stroke);
             }
 
-            (self.children.unwrap().as_mut())(ui)
+            (self.children.unwrap())(ui)
         })
         .response
     }

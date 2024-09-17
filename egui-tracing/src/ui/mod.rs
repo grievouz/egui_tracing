@@ -78,7 +78,7 @@ impl Widget for Logs {
                     .children(|ui| {
                         LevelMenuButton::default()
                             .state(&mut state.level_filter)
-                            .show(ui)
+                            .show(ui);
                     })
                     .show(ui);
                 TableHeader::default()
@@ -86,7 +86,7 @@ impl Widget for Logs {
                     .children(|ui| {
                         TargetMenuButton::default()
                             .state(&mut state.target_filter)
-                            .show(ui)
+                            .show(ui);
                     })
                     .show(ui);
                 TableHeader::default()

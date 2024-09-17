@@ -1,8 +1,7 @@
-use egui_tracing::egui;
 use egui_tracing::tracing::collector::EventCollector;
-use egui_tracing::tracing_subscriber;
 use egui_tracing::tracing_subscriber::layer::SubscriberExt;
 use egui_tracing::tracing_subscriber::util::SubscriberInitExt;
+use egui_tracing::{egui, tracing_subscriber};
 
 fn main() {
     let collector = egui_tracing::EventCollector::default();
@@ -14,7 +13,7 @@ fn main() {
         viewport: egui::ViewportBuilder {
             resizable: Some(true),
             inner_size: Some(egui::vec2(800.0, 500.0)),
-            .. Default::default()
+            ..Default::default()
         },
         ..Default::default()
     };

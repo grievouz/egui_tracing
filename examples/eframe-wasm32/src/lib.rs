@@ -1,8 +1,12 @@
 use egui_tracing::egui;
 use egui_tracing::tracing::collector::EventCollector;
+#[cfg(target_arch = "wasm32")]
 use egui_tracing::tracing_subscriber;
+#[cfg(target_arch = "wasm32")]
 use egui_tracing::tracing_subscriber::layer::SubscriberExt;
+#[cfg(target_arch = "wasm32")]
 use egui_tracing::tracing_subscriber::util::SubscriberInitExt;
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
 
 #[cfg(target_arch = "wasm32")]
@@ -31,6 +35,7 @@ pub struct MyApp {
 }
 
 impl MyApp {
+    #[cfg(target_arch = "wasm32")]
     fn new(collector: EventCollector) -> Self {
         Self { collector }
     }

@@ -42,7 +42,7 @@ impl<'a> TargetMenuButton<'a> {
                     .on_clicked(|| {
                         state.targets.remove(i);
                     })
-                    .target(&target)
+                    .target(target)
                     .show(ui);
             }
         });
