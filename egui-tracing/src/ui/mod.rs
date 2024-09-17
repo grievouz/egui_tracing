@@ -92,7 +92,7 @@ impl Widget for Logs {
                 TableHeader::default()
                     .common_props(CommonProps::new().min_width(120.0))
                     .children(|ui| {
-                        ui.label("Content");
+                        ui.label("Message");
                     })
                     .show(ui);
             })
