@@ -1,7 +1,5 @@
 # egui_tracing
 
-> **Note**: This library is not currently under active development. However, I would happily add maintainers interested in contributing to and improving the project. If you're interested in maintaining this library, please open an issue.
-
 [![Crates.io](https://img.shields.io/crates/v/egui_tracing)](https://crates.io/crates/egui_tracing)
 [![Documentation](https://docs.rs/egui_tracing/badge.svg)](https://docs.rs/egui_tracing)
 [![Apache](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://github.com/grievouz/egui_tracing/blob/main/LICENSE)
