@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.6](https://github.com/grievouz/egui_tracing/compare/egui_tracing-v0.2.5...egui_tracing-v0.2.6) - 2024-09-27
+
+### Added
+
+- add toggle for default features of sub-dependencies
+
+### Other
+
+- remove Box and dyn trait objects for improved performance
+
 ## [0.2.5](https://github.com/grievouz/egui_tracing/compare/egui_tracing-v0.2.4...egui_tracing-v0.2.5) - 2024-09-17
 
 ### Added
