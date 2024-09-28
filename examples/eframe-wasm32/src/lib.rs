@@ -17,11 +17,18 @@ pub fn start() {
         .with(collector.clone())
         .init();
 
+    let document = web_sys::window().unwrap().document().unwrap();
+    let canvas = document.get_element_by_id("eframe-canvas").unwrap();
+    let canvas: web_sys::HtmlCanvasElement = canvas
+        .dyn_into::<web_sys::HtmlCanvasElement>()
+        .map_err(|_| ())
+        .unwrap();
+
     let web_options = eframe::WebOptions::default();
     wasm_bindgen_futures::spawn_local(async {
         eframe::WebRunner::new()
             .start(
-                "eframe-canvas",
+                canvas,
                 web_options,
                 Box::new(|_cc| Ok(Box::new(MyApp::new(collector)))),
             )
