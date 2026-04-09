@@ -6,7 +6,6 @@ use std::sync::{Arc, Mutex};
 
 use egui::{Label, Response, TextStyle, TextWrapMode, Widget};
 use egui_extras::{Column, TableBuilder};
-use globset::GlobSetBuilder;
 
 use self::color::ToColor32;
 use self::components::level_menu_button::LevelMenuButton;
@@ -43,58 +42,31 @@ impl Widget for Logs {
         });
         let mut state = state.lock().unwrap();
 
-        // TODO: cache the globset
-        let glob = {
-            let mut glob = GlobSetBuilder::new();
-            for target in state.target_filter.targets.clone() {
-                glob.add(target);
-            }
-            glob.build().unwrap()
-        };
+        let generation = self.collector.generation();
+        let filter_hash =
+            state.level_filter.hash() ^ (state.target_filter.targets.len() as u64) << 32;
 
-        let events = self.collector.events();
-        let filtered_events = events
-            .iter()
-            .filter(|event| state.level_filter.get(event.level) && !glob.is_match(&event.target))
-            .collect::<Vec<_>>();
+        {
+            let LogsState {
+                ref level_filter,
+                ref target_filter,
+                ref mut cache,
+                ..
+            } = *state;
+            cache.rebuild_glob_set(&target_filter.targets);
+            let events = self.collector.events();
+            cache.update(&events, generation, filter_hash, level_filter);
+        }
 
-        let row_height = ui
-            .style()
-            .text_styles
-            .get(&TextStyle::Small)
-            .unwrap()
-            .size
-            + 4.0;
+        let filtered_count = state.cache.filtered_events.len();
+
+        let text_height = ui.style().text_styles.get(&TextStyle::Small).unwrap().size;
+        let row_height = text_height + 18.0;
+        let header_height = text_height + 18.0;
 
         let response = ui
             .vertical(|ui| {
-                // Toolbar
-                ui.horizontal(|ui| {
-                    if ui
-                        .button("To Bottom")
-                        .on_hover_text("Scroll to Bottom")
-                        .clicked()
-                    {
-                        ui.scroll_to_rect(
-                            egui::Rect::from_min_max(
-                                egui::pos2(0.0, 0.0),
-                                egui::pos2(f32::MAX, f32::MAX),
-                            ),
-                            Some(egui::Align::Max),
-                        );
-                    }
-
-                    ui.separator();
-
-                    if ui.button("Clear").on_hover_text("Clear Events").clicked() {
-                        self.collector.clear();
-                    }
-                });
-
-                ui.separator();
-
-                // Table
-                let table = TableBuilder::new(ui)
+                TableBuilder::new(ui)
                     .striped(true)
                     .resizable(true)
                     .stick_to_bottom(true)
@@ -102,16 +74,15 @@ impl Widget for Logs {
                     .column(Column::initial(100.0).at_least(60.0))
                     .column(Column::initial(60.0).at_least(40.0))
                     .column(Column::initial(140.0).at_least(60.0))
-                    .column(Column::remainder().at_least(100.0).clip(true));
-
-                table
-                    .header(row_height, |mut header| {
+                    .column(Column::remainder().at_least(100.0).clip(true))
+                    .header(header_height, |mut header| {
                         header.col(|ui| {
                             ui.label("Time");
                         });
                         header.col(|ui| {
                             LevelMenuButton::default()
                                 .state(&mut state.level_filter)
+                                .max_level(self.collector.level())
                                 .show(ui);
                         });
                         header.col(|ui| {
@@ -120,12 +91,26 @@ impl Widget for Logs {
                                 .show(ui);
                         });
                         header.col(|ui| {
-                            ui.label("Message");
+                            ui.with_layout(
+                                egui::Layout::right_to_left(egui::Align::Center),
+                                |ui| {
+                                    if ui.small_button("Clear").clicked() {
+                                        self.collector.clear();
+                                    }
+                                    ui.with_layout(
+                                        egui::Layout::left_to_right(egui::Align::Center),
+                                        |ui| {
+                                            ui.label("Message");
+                                            ui.weak(format!("({})", filtered_count));
+                                        },
+                                    );
+                                },
+                            );
                         });
                     })
                     .body(|body| {
-                        body.rows(row_height, filtered_events.len(), |mut row| {
-                            let event = filtered_events[row.index()];
+                        body.rows(row_height, filtered_count, |mut row| {
+                            let event = &state.cache.filtered_events[row.index()];
 
                             row.col(|ui| {
                                 ui.label(event.time.format_short())
@@ -133,18 +118,12 @@ impl Widget for Logs {
                             });
 
                             row.col(|ui| {
-                                ui.colored_label(
-                                    event.level.to_color32(),
-                                    event.level.as_str(),
-                                );
+                                ui.colored_label(event.level.to_color32(), event.level.as_str());
                             });
 
                             row.col(|ui| {
-                                ui.add(
-                                    Label::new(&event.target)
-                                        .wrap_mode(TextWrapMode::Truncate),
-                                )
-                                .on_hover_text(&event.target);
+                                ui.add(Label::new(&event.target).wrap_mode(TextWrapMode::Truncate))
+                                    .on_hover_text(&event.target);
                             });
 
                             row.col(|ui| {
@@ -163,24 +142,18 @@ impl Widget for Logs {
                                         continue;
                                     }
                                     if key.starts_with("log.") {
-                                        log_message
-                                            .push_str(&format!("\n {key}: {value}"));
+                                        log_message.push_str(&format!("\n {key}: {value}"));
                                     } else {
-                                        short_message
-                                            .push_str(&format!(", {key}: {value}"));
-                                        complete_message
-                                            .push_str(&format!("\n {key}: {value}"));
+                                        short_message.push_str(&format!(", {key}: {value}"));
+                                        complete_message.push_str(&format!("\n {key}: {value}"));
                                     }
                                 }
 
                                 complete_message.push_str("\n\n");
                                 complete_message.push_str(&log_message);
 
-                                ui.add(
-                                    Label::new(short_message)
-                                        .wrap_mode(TextWrapMode::Truncate),
-                                )
-                                .on_hover_text(complete_message);
+                                ui.add(Label::new(short_message).wrap_mode(TextWrapMode::Truncate))
+                                    .on_hover_text(complete_message);
                             });
                         });
                     });

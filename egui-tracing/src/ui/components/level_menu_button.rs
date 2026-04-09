@@ -1,4 +1,5 @@
-use egui::{RichText, Ui};
+use egui::{PopupCloseBehavior, RichText, Ui};
+use tracing::Level;
 
 use crate::ui::color::{DEBUG_COLOR, ERROR_COLOR, INFO_COLOR, TRACE_COLOR, WARN_COLOR};
 use crate::ui::state::LevelFilter;
@@ -6,6 +7,7 @@ use crate::ui::state::LevelFilter;
 #[derive(Default)]
 pub struct LevelMenuButton<'a> {
     state: Option<&'a mut LevelFilter>,
+    max_level: Option<Level>,
 }
 
 impl<'a> LevelMenuButton<'a> {
@@ -14,30 +16,48 @@ impl<'a> LevelMenuButton<'a> {
         self
     }
 
+    pub fn max_level(mut self, level: Level) -> Self {
+        self.max_level = Some(level);
+        self
+    }
+
     pub fn show(mut self, ui: &mut Ui) {
         let state = self.state.as_mut().unwrap();
-        ui.menu_button("Level", |ui| {
-            ui.label("Level Filter");
-            ui.add(egui::Checkbox::new(
-                &mut state.trace,
-                RichText::new("TRACE").color(TRACE_COLOR),
-            ));
-            ui.add(egui::Checkbox::new(
-                &mut state.debug,
-                RichText::new("DEBUG").color(DEBUG_COLOR),
-            ));
-            ui.add(egui::Checkbox::new(
-                &mut state.info,
-                RichText::new("INFO").color(INFO_COLOR),
-            ));
-            ui.add(egui::Checkbox::new(
-                &mut state.warn,
-                RichText::new("WARN").color(WARN_COLOR),
-            ));
-            ui.add(egui::Checkbox::new(
-                &mut state.error,
-                RichText::new("ERROR").color(ERROR_COLOR),
-            ));
-        });
+        let max = self.max_level.unwrap_or(Level::TRACE);
+        let button = ui.button("Level");
+
+        egui::Popup::menu(&button)
+            .close_behavior(PopupCloseBehavior::CloseOnClickOutside)
+            .show(|ui| {
+                ui.label("Level Filter");
+                if max >= Level::TRACE {
+                    ui.add(egui::Checkbox::new(
+                        &mut state.trace,
+                        RichText::new("TRACE").color(TRACE_COLOR),
+                    ));
+                }
+                if max >= Level::DEBUG {
+                    ui.add(egui::Checkbox::new(
+                        &mut state.debug,
+                        RichText::new("DEBUG").color(DEBUG_COLOR),
+                    ));
+                }
+                if max >= Level::INFO {
+                    ui.add(egui::Checkbox::new(
+                        &mut state.info,
+                        RichText::new("INFO").color(INFO_COLOR),
+                    ));
+                }
+                if max >= Level::WARN {
+                    ui.add(egui::Checkbox::new(
+                        &mut state.warn,
+                        RichText::new("WARN").color(WARN_COLOR),
+                    ));
+                }
+                ui.add(egui::Checkbox::new(
+                    &mut state.error,
+                    RichText::new("ERROR").color(ERROR_COLOR),
+                ));
+            });
     }
 }
