@@ -34,6 +34,11 @@ impl Logs {
 
 impl Widget for Logs {
     fn ui(self, ui: &mut egui::Ui) -> Response {
+        #[cfg(debug_assertions)]
+        ui.ctx().style_mut_of(ui.theme(), |style| {
+            style.debug.warn_if_rect_changes_id = false;
+        });
+
         let state = ui.memory_mut(|mem| {
             let state_mem_id = ui.id();
             mem.data
