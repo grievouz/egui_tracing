@@ -6,6 +6,8 @@ use egui::{Response, Ui};
 use super::constants::SEPARATOR_SPACING;
 use super::ChildFn;
 
+use crate::ui::labels::TracingLabels;
+
 pub struct Table<OnClearFn, HeaderFn, RowFn, Item> {
     row_height: Option<f32>,
     on_clear: Option<OnClearFn>,
@@ -52,7 +54,7 @@ where
         self
     }
 
-    pub fn show(self, ui: &mut Ui, values: Iter<&Item>) -> Response {
+    pub fn show(self, ui: &mut Ui, values: Iter<&Item>, labels: &TracingLabels) -> Response {
         ui.vertical(|ui| {
             ui.horizontal(|ui| {
                 ui.horizontal(|ui| {
@@ -62,8 +64,8 @@ where
                 ui.add_space(ui.available_width() - 130.0);
 
                 if ui
-                    .button("To Bottom")
-                    .on_hover_text("Scroll to Bottom")
+                    .button(labels.to_bottom.as_str())
+                    .on_hover_text(labels.scroll_to_bottom.as_str())
                     .clicked()
                 {
                     ui.scroll_to_rect(
@@ -80,7 +82,11 @@ where
 
                 ui.separator();
 
-                if ui.button("Clear").on_hover_text("Clear Events").clicked() {
+                if ui
+                    .button(labels.clear.as_str())
+                    .on_hover_text(labels.clear_events.as_str())
+                    .clicked()
+                {
                     (self.on_clear.unwrap())();
                 }
             });

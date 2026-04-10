@@ -1,5 +1,6 @@
 mod color;
 mod components;
+pub mod labels;
 mod state;
 
 use std::sync::{Arc, Mutex};
@@ -15,6 +16,7 @@ use self::components::table::Table;
 use self::components::table_cell::TableCell;
 use self::components::table_header::TableHeader;
 use self::components::target_menu_button::TargetMenuButton;
+use self::labels::TracingLabels;
 use self::state::LogsState;
 use crate::string::Ellipse;
 use crate::time::DateTimeFormatExt;
@@ -23,16 +25,29 @@ use crate::tracing::CollectedEvent;
 
 pub struct Logs {
     collector: EventCollector,
+    labels: TracingLabels,
 }
 
 impl Logs {
     #[must_use]
-    pub const fn new(collector: EventCollector) -> Self {
-        Self { collector }
+    pub fn new(collector: EventCollector) -> Self {
+        Self {
+            collector,
+            labels: TracingLabels::default(),
+        }
+    }
+
+    pub fn labels(mut self, labels: TracingLabels) -> Self {
+        self.labels = labels;
+        self
+    }
+
+    pub fn labels_mut(&mut self) -> &mut TracingLabels {
+        &mut self.labels
     }
 }
 
-impl Widget for Logs {
+impl Widget for &mut Logs {
     fn ui(self, ui: &mut egui::Ui) -> Response {
         let state = ui.memory_mut(|mem| {
             let state_mem_id = ui.id();
@@ -70,7 +85,7 @@ impl Widget for Logs {
                 TableHeader::default()
                     .common_props(CommonProps::new().min_width(100.0))
                     .children(|ui| {
-                        ui.label("Time");
+                        ui.label(self.labels.time.as_str());
                     })
                     .show(ui);
                 TableHeader::default()
@@ -78,7 +93,7 @@ impl Widget for Logs {
                     .children(|ui| {
                         LevelMenuButton::default()
                             .state(&mut state.level_filter)
-                            .show(ui);
+                            .show(ui, &self.labels);
                     })
                     .show(ui);
                 TableHeader::default()
@@ -86,13 +101,13 @@ impl Widget for Logs {
                     .children(|ui| {
                         TargetMenuButton::default()
                             .state(&mut state.target_filter)
-                            .show(ui);
+                            .show(ui, &self.labels);
                     })
                     .show(ui);
                 TableHeader::default()
                     .common_props(CommonProps::new().min_width(120.0))
                     .children(|ui| {
-                        ui.label("Message");
+                        ui.label(self.labels.message.as_str());
                     })
                     .show(ui);
             })
@@ -151,6 +166,6 @@ impl Widget for Logs {
                     })
                     .show(ui);
             })
-            .show(ui, filtered_events.iter())
+            .show(ui, filtered_events.iter(), &self.labels)
     }
 }

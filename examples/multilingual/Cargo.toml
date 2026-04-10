@@ -1,0 +1,12 @@
+[package]
+name = "example-multilingual"
+version = "0.2.6"
+edition = "2021"
+publish = false
+
+[dependencies]
+egui_tracing = { path = "../../egui-tracing", features = [ "reexport" ]}
+eframe.workspace = true
+
+[features]
+default = ["eframe/default"]

@@ -26,19 +26,19 @@ fn main() {
 }
 
 pub struct MyApp {
-    collector: EventCollector,
+    logs: egui_tracing::Logs,
 }
 
 impl MyApp {
     fn new(collector: EventCollector) -> Self {
-        Self { collector }
+        Self {
+            logs: egui_tracing::Logs::new(collector),
+        }
     }
 }
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.add(egui_tracing::Logs::new(self.collector.clone()))
-        });
+        egui::CentralPanel::default().show(ctx, |ui| ui.add(&mut self.logs));
     }
 }

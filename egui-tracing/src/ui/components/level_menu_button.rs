@@ -2,6 +2,7 @@ use egui::{RichText, Ui};
 
 use super::common::{set_common_props, CommonProps};
 use crate::ui::color::{DEBUG_COLOR, ERROR_COLOR, INFO_COLOR, TRACE_COLOR, WARN_COLOR};
+use crate::ui::labels::TracingLabels;
 use crate::ui::state::LevelFilter;
 
 #[derive(Default)]
@@ -16,11 +17,11 @@ impl<'a> LevelMenuButton<'a> {
         self
     }
 
-    pub fn show(mut self, ui: &mut Ui) {
+    pub fn show(mut self, ui: &mut Ui, labels: &TracingLabels) {
         let state = self.state.as_mut().unwrap();
-        ui.menu_button("Level", |ui| {
+        ui.menu_button(labels.level.as_str(), |ui| {
             set_common_props(ui, &self.common_props);
-            ui.label("Level Filter");
+            ui.label(labels.level_filter.as_str());
             ui.add(egui::Checkbox::new(
                 &mut state.trace,
                 RichText::new("TRACE").color(TRACE_COLOR),

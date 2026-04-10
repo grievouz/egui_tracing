@@ -2,7 +2,7 @@ use egui::Ui;
 use globset::Glob;
 
 use super::target_menu_item::TargetMenuItem;
-use crate::ui::state::TargetFilter;
+use crate::ui::{labels::TracingLabels, state::TargetFilter};
 
 #[derive(Default)]
 pub struct TargetMenuButton<'a> {
@@ -15,17 +15,17 @@ impl<'a> TargetMenuButton<'a> {
         self
     }
 
-    pub fn show(self, ui: &mut Ui) {
+    pub fn show(self, ui: &mut Ui, labels: &TracingLabels) {
         let state = self.state.unwrap();
-        ui.menu_button("Target", |ui| {
-            ui.label("Target Filter");
+        ui.menu_button(labels.target.as_str(), |ui| {
+            ui.label(labels.target_filter.as_str());
 
             let (input, add_button) = ui
                 .horizontal(|ui| {
                     let input = ui
                         .text_edit_singleline(&mut state.input)
-                        .on_hover_text("example: eframe::*");
-                    let button = ui.button("Add");
+                        .on_hover_text(format!("{}: eframe::*", labels.example));
+                    let button = ui.button(labels.add.as_str());
                     (input, button)
                 })
                 .inner;
@@ -43,7 +43,7 @@ impl<'a> TargetMenuButton<'a> {
                         state.targets.remove(i);
                     })
                     .target(target)
-                    .show(ui);
+                    .show(ui, labels);
             }
         });
     }

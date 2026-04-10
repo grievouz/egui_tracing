@@ -1,7 +1,7 @@
 use egui::Ui;
 use globset::Glob;
 
-use crate::string::Ellipse;
+use crate::{string::Ellipse, ui::labels::TracingLabels};
 
 pub struct TargetMenuItem<'a, T> {
     target: Option<&'a Glob>,
@@ -31,14 +31,14 @@ where
         self
     }
 
-    pub fn show(self, ui: &mut Ui) {
+    pub fn show(self, ui: &mut Ui, labels: &TracingLabels) {
         ui.separator();
         let pattern = self.target.unwrap().glob().to_owned();
         ui.horizontal(|ui| {
             ui.label(pattern.truncate_graphemes(18))
                 .on_hover_text(pattern);
             ui.add_space(ui.available_width() - 43.0);
-            if ui.button("Delete").clicked() {
+            if ui.button(labels.delete.as_str()).clicked() {
                 self.on_clicked.unwrap()();
             }
         });

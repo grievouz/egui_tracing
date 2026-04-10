@@ -1,6 +1,6 @@
 [workspace]
 resolver = "1"
-members = ["egui-tracing", "examples/eframe", "examples/eframe-wasm32"]
+members = ["egui-tracing", "examples/eframe", "examples/eframe-wasm32", "examples/multilingual"]
 
 [workspace.dependencies]
 eframe = { version = "~0.33.0", default-features = false }
