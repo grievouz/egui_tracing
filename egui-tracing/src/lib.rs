@@ -5,11 +5,9 @@ mod time;
 pub mod tracing;
 pub mod ui;
 
-#[cfg(feature = "reexport")]
 pub use egui;
-#[cfg(feature = "reexport")]
 pub use tracing_subscriber;
 
 pub use self::tracing::EventCollector;
+pub use self::ui::labels::Labels;
 pub use self::ui::Logs;
-pub use self::ui::labels::TracingLabels;

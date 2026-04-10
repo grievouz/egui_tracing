@@ -1,5 +1,4 @@
 use egui_tracing::egui;
-#[cfg(target_arch = "wasm32")]
 use egui_tracing::tracing::collector::EventCollector;
 #[cfg(target_arch = "wasm32")]
 use egui_tracing::tracing_subscriber;
@@ -39,20 +38,28 @@ pub fn start() {
 }
 
 pub struct MyApp {
-    logs: egui_tracing::Logs,
+    collector: EventCollector,
 }
 
 impl MyApp {
     #[cfg(target_arch = "wasm32")]
     fn new(collector: EventCollector) -> Self {
-        Self {
-            logs: egui_tracing::Logs::new(collector),
-        }
+        Self { collector }
     }
 }
 
 impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| ui.add(&mut self.logs));
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::Panel::bottom("status").show_inside(ui, |ui| {
+            ui.horizontal(|ui| {
+                let fps = 1.0 / ui.input(|i| i.stable_dt);
+                ui.weak(format!("{fps:.0} FPS"));
+                ui.separator();
+                ui.weak(format!("{} collected", self.collector.len()));
+            });
+        });
+        egui::CentralPanel::default().show_inside(ui, |ui| {
+            ui.add(egui_tracing::Logs::new(self.collector.clone()));
+        });
     }
 }

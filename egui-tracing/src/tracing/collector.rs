@@ -1,5 +1,7 @@
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 
+use imbl::Vector;
 use tracing::{Event, Level, Subscriber};
 #[cfg(feature = "log")]
 use tracing_log::NormalizeEvent;
@@ -18,8 +20,11 @@ pub enum AllowedTargets {
 #[derive(Debug, Clone)]
 pub struct EventCollector {
     allowed_targets: AllowedTargets,
-    level: Level,
-    events: Arc<Mutex<Vec<CollectedEvent>>>,
+    max_level: Level,
+    max_events: Option<usize>,
+    events: Arc<Mutex<Vector<CollectedEvent>>>,
+    pending: Arc<Mutex<Vec<CollectedEvent>>>,
+    generation: Arc<AtomicU64>,
 }
 
 impl EventCollector {
@@ -27,8 +32,15 @@ impl EventCollector {
         Self::default()
     }
 
-    pub fn with_level(self, level: Level) -> Self {
-        Self { level, ..self }
+    pub fn with_max_level(self, max_level: Level) -> Self {
+        Self { max_level, ..self }
+    }
+
+    pub fn with_max_events(self, max_events: Option<usize>) -> Self {
+        Self {
+            max_events,
+            ..self
+        }
     }
 
     pub fn allowed_targets(self, allowed_targets: AllowedTargets) -> Self {
@@ -38,17 +50,57 @@ impl EventCollector {
         }
     }
 
-    pub fn events(&self) -> Vec<CollectedEvent> {
+    pub fn max_level(&self) -> Level {
+        self.max_level
+    }
+
+    pub fn generation(&self) -> u64 {
+        self.generation.load(Ordering::Relaxed)
+    }
+
+    pub fn len(&self) -> usize {
+        self.events.lock().unwrap().len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    pub fn events(&self) -> Vector<CollectedEvent> {
+        self.drain_pending();
         self.events.lock().unwrap().clone()
     }
 
     pub fn clear(&self) {
+        {
+            let mut pending = self.pending.lock().unwrap();
+            pending.clear();
+        }
         let mut events = self.events.lock().unwrap();
-        *events = Vec::new();
+        *events = Vector::new();
+        self.generation.fetch_add(1, Ordering::Relaxed);
+    }
+
+    /// Flush pending events into the main vector, bumping generation once.
+    pub fn drain_pending(&self) {
+        let mut pending = self.pending.lock().unwrap();
+        if pending.is_empty() {
+            return;
+        }
+        let mut events = self.events.lock().unwrap();
+        for event in pending.drain(..) {
+            events.push_back(event);
+        }
+        if let Some(max) = self.max_events {
+            while events.len() > max {
+                events.pop_front();
+            }
+        }
+        self.generation.fetch_add(1, Ordering::Relaxed);
     }
 
     fn collect(&self, event: CollectedEvent) {
-        if event.level <= self.level {
+        if event.level <= self.max_level {
             let should_collect = match self.allowed_targets {
                 AllowedTargets::All => true,
                 AllowedTargets::Selected(ref selection) => selection
@@ -56,7 +108,7 @@ impl EventCollector {
                     .any(|target| event.target.starts_with(target)),
             };
             if should_collect {
-                self.events.lock().unwrap().push(event);
+                self.pending.lock().unwrap().push(event);
             }
         }
     }
@@ -66,8 +118,11 @@ impl Default for EventCollector {
     fn default() -> Self {
         Self {
             allowed_targets: AllowedTargets::All,
-            events: Arc::new(Mutex::new(Vec::new())),
-            level: Level::TRACE, // capture everything by default.
+            max_events: None,
+            events: Arc::new(Mutex::new(Vector::new())),
+            pending: Arc::new(Mutex::new(Vec::new())),
+            generation: Arc::new(AtomicU64::new(0)),
+            max_level: Level::DEBUG,
         }
     }
 }
