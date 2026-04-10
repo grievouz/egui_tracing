@@ -1,10 +1,28 @@
 use egui_tracing::tracing::collector::EventCollector;
 use egui_tracing::tracing_subscriber::layer::SubscriberExt;
 use egui_tracing::tracing_subscriber::util::SubscriberInitExt;
-use egui_tracing::{egui, tracing_subscriber};
+use egui_tracing::{egui, tracing_subscriber, Labels};
+use tracing::Level;
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum Language {
+    English,
+    Portuguese,
+}
+
+impl Language {
+    fn labels(self) -> Labels {
+        match self {
+            Language::English => Labels::english(),
+            Language::Portuguese => Labels::portuguese(),
+        }
+    }
+}
 
 fn main() {
-    let collector = egui_tracing::EventCollector::default();
+    let collector = egui_tracing::EventCollector::default()
+        .with_max_events(None)
+        .with_max_level(Level::TRACE);
     tracing_subscriber::registry()
         .with(collector.clone())
         .init();
@@ -27,18 +45,46 @@ fn main() {
 
 pub struct MyApp {
     collector: EventCollector,
+    language: Language,
+    labels: Labels,
 }
 
 impl MyApp {
     fn new(collector: EventCollector) -> Self {
-        Self { collector }
+        Self {
+            collector,
+            language: Language::English,
+            labels: Labels::default(),
+        }
     }
 }
 
 impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.add(egui_tracing::Logs::new(self.collector.clone()))
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::Panel::bottom("status").show_inside(ui, |ui| {
+            ui.horizontal(|ui| {
+                let fps = 1.0 / ui.input(|i| i.stable_dt);
+                ui.weak(format!("{fps:.0} FPS"));
+                ui.separator();
+                ui.weak(format!("{} collected", self.collector.len()));
+                ui.separator();
+                let before = self.language;
+                egui::ComboBox::from_id_salt("lang")
+                    .selected_text(format!("{:?}", self.language))
+                    .show_ui(ui, |ui| {
+                        ui.selectable_value(&mut self.language, Language::English, "English");
+                        ui.selectable_value(&mut self.language, Language::Portuguese, "Português");
+                    });
+                if self.language != before {
+                    self.labels = self.language.labels();
+                }
+            });
+        });
+        egui::CentralPanel::default().show_inside(ui, |ui| {
+            ui.add(
+                egui_tracing::Logs::new(self.collector.clone())
+                    .with_labels(self.labels.clone()),
+            );
         });
     }
 }

@@ -12,16 +12,25 @@ use wasm_bindgen::prelude::*;
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
 pub fn start() {
-    let collector = egui_tracing::EventCollector::default();
+    let collector = egui_tracing::EventCollector::default()
+        .with_max_events(None)
+        .with_max_level(Level::TRACE);
     tracing_subscriber::registry()
         .with(collector.clone())
         .init();
+
+    let document = web_sys::window().unwrap().document().unwrap();
+    let canvas = document.get_element_by_id("eframe-canvas").unwrap();
+    let canvas: web_sys::HtmlCanvasElement = canvas
+        .dyn_into::<web_sys::HtmlCanvasElement>()
+        .map_err(|_| ())
+        .unwrap();
 
     let web_options = eframe::WebOptions::default();
     wasm_bindgen_futures::spawn_local(async {
         eframe::WebRunner::new()
             .start(
-                "eframe-canvas",
+                canvas,
                 web_options,
                 Box::new(|_cc| Ok(Box::new(MyApp::new(collector)))),
             )
@@ -42,9 +51,17 @@ impl MyApp {
 }
 
 impl eframe::App for MyApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
-            ui.add(egui_tracing::Logs::new(self.collector.clone()))
+    fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::Panel::bottom("status").show_inside(ui, |ui| {
+            ui.horizontal(|ui| {
+                let fps = 1.0 / ui.input(|i| i.stable_dt);
+                ui.weak(format!("{fps:.0} FPS"));
+                ui.separator();
+                ui.weak(format!("{} collected", self.collector.len()));
+            });
+        });
+        egui::CentralPanel::default().show_inside(ui, |ui| {
+            ui.add(egui_tracing::Logs::new(self.collector.clone()));
         });
     }
 }
