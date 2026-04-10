@@ -15,6 +15,8 @@ pub struct LogsState {
     pub cache: FilterCache,
     #[serde(skip)]
     pub selected_row: Option<usize>,
+    #[serde(skip)]
+    pub scroll_to_bottom: bool,
 }
 
 #[derive(Debug, Default)]

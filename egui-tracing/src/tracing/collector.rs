@@ -20,7 +20,7 @@ pub enum AllowedTargets {
 #[derive(Debug, Clone)]
 pub struct EventCollector {
     allowed_targets: AllowedTargets,
-    level: Level,
+    max_level: Level,
     max_events: Option<usize>,
     events: Arc<Mutex<Vector<CollectedEvent>>>,
     pending: Arc<Mutex<Vec<CollectedEvent>>>,
@@ -32,8 +32,8 @@ impl EventCollector {
         Self::default()
     }
 
-    pub fn with_level(self, level: Level) -> Self {
-        Self { level, ..self }
+    pub fn with_max_level(self, max_level: Level) -> Self {
+        Self { max_level, ..self }
     }
 
     pub fn with_max_events(self, max_events: Option<usize>) -> Self {
@@ -50,8 +50,8 @@ impl EventCollector {
         }
     }
 
-    pub fn level(&self) -> Level {
-        self.level
+    pub fn max_level(&self) -> Level {
+        self.max_level
     }
 
     pub fn generation(&self) -> u64 {
@@ -100,7 +100,7 @@ impl EventCollector {
     }
 
     fn collect(&self, event: CollectedEvent) {
-        if event.level <= self.level {
+        if event.level <= self.max_level {
             let should_collect = match self.allowed_targets {
                 AllowedTargets::All => true,
                 AllowedTargets::Selected(ref selection) => selection
@@ -122,7 +122,7 @@ impl Default for EventCollector {
             events: Arc::new(Mutex::new(Vector::new())),
             pending: Arc::new(Mutex::new(Vec::new())),
             generation: Arc::new(AtomicU64::new(0)),
-            level: Level::DEBUG,
+            max_level: Level::DEBUG,
         }
     }
 }

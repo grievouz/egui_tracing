@@ -147,7 +147,7 @@ impl Widget for Logs {
 
         // Log table fills remaining space — uniform row heights (O(1) scroll)
         let response = ui.vertical(|ui| {
-            TableBuilder::new(ui)
+            let mut table = TableBuilder::new(ui)
             .striped(true)
             .resizable(true)
             .stick_to_bottom(true)
@@ -156,15 +156,30 @@ impl Widget for Logs {
             .column(Column::initial(100.0).at_least(60.0))
             .column(Column::initial(60.0).at_least(40.0))
             .column(Column::initial(140.0).at_least(60.0))
-            .column(Column::remainder().at_least(100.0).clip(true))
-            .header(header_height, |mut header| {
+            .column(Column::remainder().at_least(100.0).clip(true));
+
+            if state.scroll_to_bottom && filtered_count > 0 {
+                table = table
+                    .animate_scrolling(false)
+                    .scroll_to_row(filtered_count - 1, Some(egui::Align::BOTTOM));
+                state.scroll_to_bottom = false;
+            }
+
+            table.header(header_height, |mut header| {
                 header.col(|ui| {
                     ui.label("Time");
+                    let bottom = ui.max_rect().bottom();
+                    let full_width = ui.ctx().content_rect().x_range();
+                    ui.painter().hline(
+                        full_width,
+                        bottom,
+                        ui.visuals().widgets.noninteractive.bg_stroke,
+                    );
                 });
                 header.col(|ui| {
                     LevelMenuButton::default()
                         .state(&mut state.level_filter)
-                        .max_level(self.collector.level())
+                        .max_level(self.collector.max_level())
                         .show(ui);
                 });
                 header.col(|ui| {
@@ -176,8 +191,11 @@ impl Widget for Logs {
                     ui.with_layout(
                         egui::Layout::right_to_left(egui::Align::Center),
                         |ui| {
-                            if ui.small_button("Clear").clicked() {
+                            if ui.button("Clear").clicked() {
                                 self.collector.clear();
+                            }
+                            if ui.button("To Bottom").clicked() {
+                                state.scroll_to_bottom = true;
                             }
                             ui.with_layout(
                                 egui::Layout::left_to_right(egui::Align::Center),

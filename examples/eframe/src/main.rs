@@ -7,7 +7,7 @@ use tracing::Level;
 fn main() {
     let collector = egui_tracing::EventCollector::default()
         .with_max_events(None)
-        .with_level(Level::TRACE);
+        .with_max_level(Level::TRACE);
     tracing_subscriber::registry()
         .with(collector.clone())
         .init();
