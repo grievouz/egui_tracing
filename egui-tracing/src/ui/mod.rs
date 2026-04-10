@@ -77,7 +77,8 @@ impl Widget for Logs {
                 let event = state.cache.get(selected).clone();
                 let mut close = false;
                 egui::Panel::bottom(ui.id().with("detail_panel"))
-                    .resizable(true)
+                    .resizable(false)
+                    .frame(egui::Frame::side_top_panel(ui.style()))
                     .show_inside(ui, |ui| {
                         ui.horizontal(|ui| {
                             ui.strong("Event Details");
