@@ -44,7 +44,7 @@ ui.add(
 
 ## Example
 
-![Preview Image](https://raw.githubusercontent.com/grievouz/egui_tracing/main/docs/preview.jpg)
+![Preview Image](https://raw.githubusercontent.com/grievouz/egui_tracing/main/docs/preview.png)
 
 To run the example application, use the following command:
 
