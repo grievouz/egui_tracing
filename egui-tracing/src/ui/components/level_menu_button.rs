@@ -5,14 +5,21 @@ use crate::ui::color::{DEBUG_COLOR, ERROR_COLOR, INFO_COLOR, TRACE_COLOR, WARN_C
 use crate::ui::labels::Labels;
 use crate::ui::state::LevelFilter;
 
-#[derive(Default)]
 pub struct LevelMenuButton<'a> {
     state: Option<&'a mut LevelFilter>,
     max_level: Option<Level>,
-    labels: Option<&'a Labels>,
+    labels: &'a Labels,
 }
 
 impl<'a> LevelMenuButton<'a> {
+    pub fn new(labels: &'a Labels) -> Self {
+        Self {
+            state: None,
+            max_level: None,
+            labels,
+        }
+    }
+
     pub fn state(mut self, v: &'a mut LevelFilter) -> Self {
         self.state = Some(v);
         self
@@ -23,22 +30,15 @@ impl<'a> LevelMenuButton<'a> {
         self
     }
 
-    pub fn labels(mut self, labels: &'a Labels) -> Self {
-        self.labels = Some(labels);
-        self
-    }
-
     pub fn show(mut self, ui: &mut Ui) {
         let state = self.state.as_mut().unwrap();
         let max = self.max_level.unwrap_or(Level::TRACE);
-        let default_labels = Labels::default();
-        let labels = self.labels.unwrap_or(&default_labels);
-        let button = ui.button(labels.level.as_ref());
+        let button = ui.button(self.labels.level.as_ref());
 
         egui::Popup::menu(&button)
             .close_behavior(PopupCloseBehavior::CloseOnClickOutside)
             .show(|ui| {
-                ui.label(labels.level_filter.as_ref());
+                ui.label(self.labels.level_filter.as_ref());
                 if max >= Level::TRACE {
                     ui.add(egui::Checkbox::new(
                         &mut state.trace,

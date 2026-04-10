@@ -105,16 +105,16 @@ impl Widget for Logs {
                         });
                         ui.separator();
                         ui.horizontal(|ui| {
-                            ui.label(RichText::new(format!("{}:", self.labels.time)).weak());
+                            ui.label(RichText::new(self.labels.time.as_ref()).weak());
                             ui.label(event.time.format_short());
                             ui.separator();
-                            ui.label(RichText::new(format!("{}:", self.labels.level)).weak());
+                            ui.label(RichText::new(self.labels.level.as_ref()).weak());
                             ui.colored_label(
                                 event.level.to_color32(),
                                 event.level.as_str(),
                             );
                             ui.separator();
-                            ui.label(RichText::new(format!("{}:", self.labels.target)).weak());
+                            ui.label(RichText::new(self.labels.target.as_ref()).weak());
                             ui.label(&event.target);
                         });
                         if let Some(msg) = &event.message {
@@ -190,16 +190,14 @@ impl Widget for Logs {
                     );
                 });
                 header.col(|ui| {
-                    LevelMenuButton::default()
+                    LevelMenuButton::new(&self.labels)
                         .state(&mut state.level_filter)
                         .max_level(self.collector.max_level())
-                        .labels(&self.labels)
                         .show(ui);
                 });
                 header.col(|ui| {
-                    TargetMenuButton::default()
+                    TargetMenuButton::new(&self.labels)
                         .state(&mut state.target_filter)
-                        .labels(&self.labels)
                         .show(ui);
                 });
                 header.col(|ui| {

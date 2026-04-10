@@ -19,6 +19,30 @@ Add `egui_tracing` to your `Cargo.toml` dependencies:
 egui_tracing = "0.2.6"
 ```
 
+## Usage
+
+Set up the collector once at startup and register it as a `tracing` layer:
+
+```rust
+let collector = egui_tracing::EventCollector::default();
+tracing_subscriber::registry().with(collector.clone()).init();
+```
+
+Then render the log view anywhere inside your egui UI:
+
+```rust
+ui.add(egui_tracing::Logs::new(collector.clone()));
+```
+
+To localize the UI, pass a `Labels` value (built-in: `english`, `portuguese`):
+
+```rust
+ui.add(
+    egui_tracing::Logs::new(collector.clone())
+        .with_labels(egui_tracing::Labels::portuguese()),
+);
+```
+
 ## Example
 
 ![Preview Image](./docs/preview.png)

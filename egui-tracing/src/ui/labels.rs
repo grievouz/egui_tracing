@@ -2,8 +2,10 @@ use std::borrow::Cow;
 
 /// Contains text labels used in the UI.
 ///
-/// Start from [`Labels::default()`] (English) and override fields for
-/// your language. Uses `Cow<'static, str>` so the defaults are zero-alloc.
+/// Built-in languages are available via [`Labels::english`] and
+/// [`Labels::portuguese`]. For other languages, start from
+/// [`Labels::default()`] (English) and override the fields you need.
+/// Uses `Cow<'static, str>` so the built-ins are zero-alloc.
 ///
 /// ```
 /// let mut labels = egui_tracing::Labels::default();
@@ -38,8 +40,9 @@ pub struct Labels {
     pub target_placeholder: Cow<'static, str>,
 }
 
-impl Default for Labels {
-    fn default() -> Self {
+impl Labels {
+    /// English labels (same as [`Labels::default`]).
+    pub fn english() -> Self {
         Self {
             time: "Time".into(),
             level: "Level".into(),
@@ -56,5 +59,31 @@ impl Default for Labels {
             delete: "Delete".into(),
             target_placeholder: "example: eframe::*".into(),
         }
+    }
+
+    /// Portuguese labels.
+    pub fn portuguese() -> Self {
+        Self {
+            time: "Tempo".into(),
+            level: "Nível".into(),
+            target: "Alvo".into(),
+            message: "Mensagem".into(),
+            clear: "Limpar".into(),
+            to_bottom: "Até ao Fundo".into(),
+            close: "Fechar".into(),
+            event_details: "Detalhes do Evento".into(),
+            message_too_long: "(mensagem muito longa)".into(),
+            level_filter: "Filtro de Nível".into(),
+            target_filter: "Filtro de Alvo".into(),
+            add: "Adicionar".into(),
+            delete: "Excluir".into(),
+            target_placeholder: "exemplo: eframe::*".into(),
+        }
+    }
+}
+
+impl Default for Labels {
+    fn default() -> Self {
+        Self::english()
     }
 }
