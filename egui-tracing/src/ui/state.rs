@@ -11,6 +11,10 @@ pub struct LogsState {
     pub target_filter: TargetFilter,
     #[serde(skip)]
     pub cache: FilterCache,
+    #[serde(skip)]
+    pub expanded_row: Option<usize>,
+    #[serde(skip)]
+    pub expanded_height: f32,
 }
 
 #[derive(Debug, Default)]
