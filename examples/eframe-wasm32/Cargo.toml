@@ -12,6 +12,7 @@ eframe = { workspace = true, features = ["glow"] }
 egui_tracing = { path = "../../egui-tracing", features = [
     "wasmbind",
 ] }
+tracing = { workspace = true, default-features = false }
 wasm-bindgen = "0.2.93"
 wasm-bindgen-futures = "0.4.42"
 web-sys = "0.3.70"
