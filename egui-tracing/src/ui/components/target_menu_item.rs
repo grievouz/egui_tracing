@@ -6,6 +6,7 @@ use crate::string::Ellipse;
 pub struct TargetMenuItem<'a, T> {
     target: Option<&'a Glob>,
     on_clicked: Option<T>,
+    delete_label: Option<&'a str>,
 }
 
 impl<'a, T> Default for TargetMenuItem<'a, T> {
@@ -13,6 +14,7 @@ impl<'a, T> Default for TargetMenuItem<'a, T> {
         Self {
             target: None,
             on_clicked: None,
+            delete_label: None,
         }
     }
 }
@@ -31,6 +33,11 @@ where
         self
     }
 
+    pub fn delete_label(mut self, label: &'a str) -> Self {
+        self.delete_label = Some(label);
+        self
+    }
+
     pub fn show(self, ui: &mut Ui) {
         ui.separator();
         let pattern = self.target.unwrap().glob().to_owned();
@@ -38,7 +45,7 @@ where
             ui.label(pattern.truncate_graphemes(18))
                 .on_hover_text(&pattern);
             ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                if ui.button("Delete").clicked() {
+                if ui.button(self.delete_label.unwrap_or("Delete")).clicked() {
                     self.on_clicked.unwrap()();
                 }
             });

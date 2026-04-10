@@ -1,5 +1,6 @@
 mod color;
 mod components;
+pub mod labels;
 mod state;
 
 use std::hash::{Hash, Hasher};
@@ -11,18 +12,29 @@ use egui_extras::{Column, TableBuilder};
 use self::color::ToColor32;
 use self::components::level_menu_button::LevelMenuButton;
 use self::components::target_menu_button::TargetMenuButton;
+use self::labels::Labels;
 use self::state::LogsState;
 use crate::time::DateTimeFormatExt;
 use crate::tracing::collector::EventCollector;
 
 pub struct Logs {
     collector: EventCollector,
+    labels: Labels,
 }
 
 impl Logs {
     #[must_use]
-    pub const fn new(collector: EventCollector) -> Self {
-        Self { collector }
+    pub fn new(collector: EventCollector) -> Self {
+        Self {
+            collector,
+            labels: Labels::default(),
+        }
+    }
+
+    #[must_use]
+    pub fn with_labels(mut self, labels: Labels) -> Self {
+        self.labels = labels;
+        self
     }
 }
 
@@ -81,11 +93,11 @@ impl Widget for Logs {
                     .frame(egui::Frame::side_top_panel(ui.style()))
                     .show_inside(ui, |ui| {
                         ui.horizontal(|ui| {
-                            ui.strong("Event Details");
+                            ui.strong(self.labels.event_details.as_ref());
                             ui.with_layout(
                                 egui::Layout::right_to_left(egui::Align::Center),
                                 |ui| {
-                                    if ui.small_button("Close").clicked() {
+                                    if ui.small_button(self.labels.close.as_ref()).clicked() {
                                         close = true;
                                     }
                                 },
@@ -93,16 +105,16 @@ impl Widget for Logs {
                         });
                         ui.separator();
                         ui.horizontal(|ui| {
-                            ui.label(RichText::new("Time:").weak());
+                            ui.label(RichText::new(format!("{}:", self.labels.time)).weak());
                             ui.label(event.time.format_short());
                             ui.separator();
-                            ui.label(RichText::new("Level:").weak());
+                            ui.label(RichText::new(format!("{}:", self.labels.level)).weak());
                             ui.colored_label(
                                 event.level.to_color32(),
                                 event.level.as_str(),
                             );
                             ui.separator();
-                            ui.label(RichText::new("Target:").weak());
+                            ui.label(RichText::new(format!("{}:", self.labels.target)).weak());
                             ui.label(&event.target);
                         });
                         if let Some(msg) = &event.message {
@@ -117,7 +129,7 @@ impl Widget for Logs {
                                     Label::new(truncated)
                                         .wrap_mode(TextWrapMode::Wrap),
                                 );
-                                ui.weak("(message too long)");
+                                ui.weak(self.labels.message_too_long.as_ref());
                             } else {
                                 ui.add(
                                     Label::new(trimmed)
@@ -168,7 +180,7 @@ impl Widget for Logs {
 
             table.header(header_height, |mut header| {
                 header.col(|ui| {
-                    ui.label("Time");
+                    ui.label(self.labels.time.as_ref());
                     let bottom = ui.max_rect().bottom();
                     let full_width = ui.ctx().content_rect().x_range();
                     ui.painter().hline(
@@ -181,27 +193,29 @@ impl Widget for Logs {
                     LevelMenuButton::default()
                         .state(&mut state.level_filter)
                         .max_level(self.collector.max_level())
+                        .labels(&self.labels)
                         .show(ui);
                 });
                 header.col(|ui| {
                     TargetMenuButton::default()
                         .state(&mut state.target_filter)
+                        .labels(&self.labels)
                         .show(ui);
                 });
                 header.col(|ui| {
                     ui.with_layout(
                         egui::Layout::right_to_left(egui::Align::Center),
                         |ui| {
-                            if ui.button("Clear").clicked() {
+                            if ui.button(self.labels.clear.as_ref()).clicked() {
                                 self.collector.clear();
                             }
-                            if ui.button("To Bottom").clicked() {
+                            if ui.button(self.labels.to_bottom.as_ref()).clicked() {
                                 state.scroll_to_bottom = true;
                             }
                             ui.with_layout(
                                 egui::Layout::left_to_right(egui::Align::Center),
                                 |ui| {
-                                    ui.label("Message");
+                                    ui.label(self.labels.message.as_ref());
                                     ui.weak(format!("({})", filtered_count));
                                 },
                             );
