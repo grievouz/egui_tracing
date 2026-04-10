@@ -6,4 +6,4 @@ members = ["egui-tracing", "examples/eframe", "examples/eframe-wasm32"]
 eframe = { version = "0.34", default-features = false }
 egui = { version = "0.34", default-features = false }
 egui_extras = { version = "0.34", default-features = false }
-tracing = { version = "0.1.40", default-features = false }
+tracing = { version = "0.1", default-features = false }

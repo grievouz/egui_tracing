@@ -34,9 +34,10 @@ impl<'a> TargetMenuButton<'a> {
 
                 let (input, add_button) = ui
                     .horizontal(|ui| {
-                        let input = ui
-                            .text_edit_singleline(&mut state.input)
-                            .on_hover_text(self.labels.target_placeholder.as_ref());
+                        let input = ui.add(
+                            egui::TextEdit::singleline(&mut state.input)
+                                .hint_text(self.labels.target_placeholder.as_ref()),
+                        );
                         let add = ui.button(self.labels.add.as_ref());
                         (input, add)
                     })

@@ -2,20 +2,16 @@ use std::hash::{Hash, Hasher};
 
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use imbl::Vector;
-use serde::{Deserialize, Serialize};
 use tracing::Level;
 
 use crate::tracing::CollectedEvent;
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default)]
 pub struct LogsState {
     pub level_filter: LevelFilter,
     pub target_filter: TargetFilter,
-    #[serde(skip)]
     pub cache: FilterCache,
-    #[serde(skip)]
     pub selected_row: Option<usize>,
-    #[serde(skip)]
     pub scroll_to_bottom: bool,
 }
 
@@ -102,7 +98,7 @@ impl FilterCache {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct LevelFilter {
     pub trace: bool,
     pub debug: bool,
@@ -111,7 +107,7 @@ pub struct LevelFilter {
     pub error: bool,
 }
 
-#[derive(Debug, Default, Clone, Serialize, Deserialize, Hash)]
+#[derive(Debug, Default, Clone, Hash)]
 pub struct TargetFilter {
     pub input: String,
     pub targets: Vec<Glob>,
