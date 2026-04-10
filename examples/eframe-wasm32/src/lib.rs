@@ -12,7 +12,9 @@ use wasm_bindgen::prelude::*;
 #[cfg(target_arch = "wasm32")]
 #[wasm_bindgen(start)]
 pub fn start() {
-    let collector = egui_tracing::EventCollector::default();
+    let collector = egui_tracing::EventCollector::default()
+        .with_max_events(None)
+        .with_max_level(Level::TRACE);
     tracing_subscriber::registry()
         .with(collector.clone())
         .init();
