@@ -5,7 +5,6 @@
 [![Apache](https://img.shields.io/badge/license-Unlicense-blue.svg)](https://github.com/grievouz/egui_tracing/blob/main/LICENSE)
 ![Dependabot](https://img.shields.io/badge/dependabot-enabled-blue?logo=dependabot&logoColor=white)
 
-
 `egui_tracing` is a Rust library that integrates tracing and logging capabilities with the [egui](https://github.com/emilk/egui) immediate mode graphical user interface library. It supports both the [tracing](https://crates.io/crates/tracing) and [log](https://crates.io/crates/log) crates for efficient and flexible event collection and visualization.
 
 [Click to view the web demo](https://grievouz.github.io/egui_tracing/)
@@ -45,7 +44,7 @@ ui.add(
 
 ## Example
 
-![Preview Image](./docs/preview.png)
+![Preview Image](https://raw.githubusercontent.com/grievouz/egui_tracing/main/docs/preview.jpg)
 
 To run the example application, use the following command:
 
