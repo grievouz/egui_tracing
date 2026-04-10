@@ -1,3 +1,5 @@
+use std::hash::{Hash, Hasher};
+
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use imbl::Vector;
 use serde::{Deserialize, Serialize};
@@ -12,9 +14,7 @@ pub struct LogsState {
     #[serde(skip)]
     pub cache: FilterCache,
     #[serde(skip)]
-    pub expanded_row: Option<usize>,
-    #[serde(skip)]
-    pub expanded_height: f32,
+    pub selected_row: Option<usize>,
 }
 
 #[derive(Debug, Default)]
@@ -23,19 +23,36 @@ pub struct FilterCache {
     filter_hash: u64,
     raw_event_count: usize,
     glob_set: Option<GlobSet>,
-    glob_target_count: usize,
-    pub filtered_events: Vec<CollectedEvent>,
+    glob_targets_hash: u64,
+    source_events: Vector<CollectedEvent>,
+    filtered_indices: Vec<usize>,
 }
 
 impl FilterCache {
+    pub fn needs_update(&self, generation: u64, filter_hash: u64) -> bool {
+        self.generation != generation || self.filter_hash != filter_hash
+    }
+
+    pub fn len(&self) -> usize {
+        self.filtered_indices.len()
+    }
+
+    pub fn get(&self, idx: usize) -> &CollectedEvent {
+        &self.source_events[self.filtered_indices[idx]]
+    }
+
     pub fn rebuild_glob_set(&mut self, targets: &[Glob]) {
-        if self.glob_set.is_none() || self.glob_target_count != targets.len() {
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        targets.hash(&mut hasher);
+        let new_hash = hasher.finish();
+
+        if self.glob_set.is_none() || self.glob_targets_hash != new_hash {
             let mut builder = GlobSetBuilder::new();
             for target in targets {
                 builder.add(target.clone());
             }
             self.glob_set = Some(builder.build().unwrap());
-            self.glob_target_count = targets.len();
+            self.glob_targets_hash = new_hash;
         }
     }
 
@@ -55,16 +72,28 @@ impl FilterCache {
 
         let glob_set = &self.glob_set;
         let matches_glob = |target: &str| glob_set.as_ref().is_some_and(|g| g.is_match(target));
-        let matches = |e: &&CollectedEvent| level_filter.get(e.level) && !matches_glob(&e.target);
+        let matches =
+            |e: &CollectedEvent| level_filter.get(e.level) && !matches_glob(&e.target);
 
         if filters_changed || events.len() < self.raw_event_count {
-            self.filtered_events = events.iter().filter(matches).cloned().collect();
+            self.filtered_indices = events
+                .iter()
+                .enumerate()
+                .filter(|(_, e)| matches(e))
+                .map(|(i, _)| i)
+                .collect();
         } else {
-            let new_events = events.iter().skip(self.raw_event_count);
-            self.filtered_events
-                .extend(new_events.filter(matches).cloned());
+            let start = self.raw_event_count;
+            let new_events = events.skip(start);
+            let new_indices = new_events
+                .iter()
+                .enumerate()
+                .filter(|(_, e)| matches(e))
+                .map(|(i, _)| i + start);
+            self.filtered_indices.extend(new_indices);
         }
 
+        self.source_events = events.clone();
         self.raw_event_count = events.len();
         self.generation = generation;
         self.filter_hash = filter_hash;

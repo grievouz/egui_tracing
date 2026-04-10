@@ -10,13 +10,9 @@ impl Ellipse for String {
             return self.clone();
         }
 
-        let mut trucated = self
-            .graphemes(true)
-            .take(len)
-            .collect::<Vec<&str>>()
-            .join("");
-        trucated.push_str("...");
+        let mut truncated: String = self.graphemes(true).take(len).collect();
+        truncated.push_str("...");
 
-        trucated
+        truncated
     }
 }

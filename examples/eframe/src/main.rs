@@ -7,7 +7,7 @@ use tracing::Level;
 fn main() {
     let collector = egui_tracing::EventCollector::default()
         .with_max_events(None)
-        .with_level(Level::DEBUG);
+        .with_level(Level::TRACE);
     tracing_subscriber::registry()
         .with(collector.clone())
         .init();
@@ -40,6 +40,14 @@ impl MyApp {
 
 impl eframe::App for MyApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
+        egui::Panel::bottom("status").show_inside(ui, |ui| {
+            ui.horizontal(|ui| {
+                let fps = 1.0 / ui.input(|i| i.stable_dt);
+                ui.weak(format!("{fps:.0} FPS"));
+                ui.separator();
+                ui.weak(format!("{} collected", self.collector.len()));
+            });
+        });
         egui::CentralPanel::default().show_inside(ui, |ui| {
             ui.add(egui_tracing::Logs::new(self.collector.clone()));
         });

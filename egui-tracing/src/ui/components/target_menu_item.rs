@@ -36,11 +36,12 @@ where
         let pattern = self.target.unwrap().glob().to_owned();
         ui.horizontal(|ui| {
             ui.label(pattern.truncate_graphemes(18))
-                .on_hover_text(pattern);
-            ui.add_space(ui.available_width() - 43.0);
-            if ui.button("Delete").clicked() {
-                self.on_clicked.unwrap()();
-            }
+                .on_hover_text(&pattern);
+            ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
+                if ui.button("Delete").clicked() {
+                    self.on_clicked.unwrap()();
+                }
+            });
         });
     }
 }

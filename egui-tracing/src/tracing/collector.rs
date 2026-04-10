@@ -23,6 +23,7 @@ pub struct EventCollector {
     level: Level,
     max_events: Option<usize>,
     events: Arc<Mutex<Vector<CollectedEvent>>>,
+    pending: Arc<Mutex<Vec<CollectedEvent>>>,
     generation: Arc<AtomicU64>,
 }
 
@@ -37,7 +38,7 @@ impl EventCollector {
 
     pub fn with_max_events(self, max_events: Option<usize>) -> Self {
         Self {
-            max_events: max_events,
+            max_events,
             ..self
         }
     }
@@ -66,12 +67,35 @@ impl EventCollector {
     }
 
     pub fn events(&self) -> Vector<CollectedEvent> {
+        self.drain_pending();
         self.events.lock().unwrap().clone()
     }
 
     pub fn clear(&self) {
+        {
+            let mut pending = self.pending.lock().unwrap();
+            pending.clear();
+        }
         let mut events = self.events.lock().unwrap();
         *events = Vector::new();
+        self.generation.fetch_add(1, Ordering::Relaxed);
+    }
+
+    /// Flush pending events into the main vector, bumping generation once.
+    pub fn drain_pending(&self) {
+        let mut pending = self.pending.lock().unwrap();
+        if pending.is_empty() {
+            return;
+        }
+        let mut events = self.events.lock().unwrap();
+        for event in pending.drain(..) {
+            events.push_back(event);
+        }
+        if let Some(max) = self.max_events {
+            while events.len() > max {
+                events.pop_front();
+            }
+        }
         self.generation.fetch_add(1, Ordering::Relaxed);
     }
 
@@ -84,14 +108,7 @@ impl EventCollector {
                     .any(|target| event.target.starts_with(target)),
             };
             if should_collect {
-                let mut events = self.events.lock().unwrap();
-                events.push_back(event);
-                if let Some(max) = self.max_events {
-                    while events.len() > max {
-                        events.pop_front();
-                    }
-                }
-                self.generation.fetch_add(1, Ordering::Relaxed);
+                self.pending.lock().unwrap().push(event);
             }
         }
     }
@@ -103,6 +120,7 @@ impl Default for EventCollector {
             allowed_targets: AllowedTargets::All,
             max_events: None,
             events: Arc::new(Mutex::new(Vector::new())),
+            pending: Arc::new(Mutex::new(Vec::new())),
             generation: Arc::new(AtomicU64::new(0)),
             level: Level::DEBUG,
         }
