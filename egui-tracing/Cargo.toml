@@ -12,6 +12,7 @@ categories = ["gui", "game-development"]
 default = ["log", "egui-default"]
 egui-default = ["egui/default"]
 log = ["tracing-log", "tracing-subscriber/tracing-log"]
+## Used to be needed use on WASM but no longer needed. Detected by target now
 wasmbind = ["chrono/wasmbind"]
 
 [dependencies]
@@ -24,3 +25,7 @@ tracing = { workspace = true, default-features = false }
 tracing-log = { workspace = true, optional = true }
 tracing-subscriber = { workspace = true, features = ["registry"] }
 unicode-segmentation = { workspace = true }
+
+# web:
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+chrono = { workspace = true, features = ["wasmbind"] }

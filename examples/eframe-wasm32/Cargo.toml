@@ -9,7 +9,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 eframe = { workspace = true, features = ["glow"] }
-egui_tracing = { workspace = true, features = ["wasmbind"] }
+egui_tracing = { workspace = true }
 getrandom = { version = "*", features = ["js"] }
 tracing = { workspace = true, default-features = false }
 wasm-bindgen = { workspace = true }
