@@ -3,7 +3,17 @@ resolver = "2"
 members = ["egui-tracing", "examples/eframe", "examples/eframe-wasm32"]
 
 [workspace.dependencies]
+chrono = { version = "0.4", default-features = false }
 eframe = { version = "0.34", default-features = false }
 egui = { version = "0.34", default-features = false }
 egui_extras = { version = "0.34", default-features = false }
+egui_tracing = { path = "egui-tracing" }
+globset = "0.4"
+imbl = "7"
 tracing = { version = "0.1", default-features = false }
+tracing-log = { version = "0.2", default-features = false }
+tracing-subscriber = { version = "0.3", default-features = false }
+unicode-segmentation = "1"
+wasm-bindgen = "0.2.93"
+wasm-bindgen-futures = "0.4.42"
+web-sys = "0.3.70"
