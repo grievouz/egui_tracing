@@ -15,12 +15,12 @@ log = ["tracing-log", "tracing-subscriber/tracing-log"]
 wasmbind = ["chrono/wasmbind"]
 
 [dependencies]
-chrono = { version = "0.4", default-features = false, features = ["clock"] }
+chrono = { workspace = true, features = ["clock"] }
 egui = { workspace = true }
 egui_extras = { workspace = true }
-imbl = "7"
-globset = "0.4"
+globset = { workspace = true }
+imbl = { workspace = true }
 tracing = { workspace = true, default-features = false }
-tracing-log = { version = "0.2", optional = true, default-features = false }
-tracing-subscriber = { version = "0.3", default-features = false, features = ["registry"] }
-unicode-segmentation = "1"
+tracing-log = { workspace = true, optional = true }
+tracing-subscriber = { workspace = true, features = ["registry"] }
+unicode-segmentation = { workspace = true }
