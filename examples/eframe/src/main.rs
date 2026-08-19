@@ -61,7 +61,7 @@ impl MyApp {
 
 impl eframe::App for MyApp {
     fn ui(&mut self, ui: &mut egui::Ui, _frame: &mut eframe::Frame) {
-        egui::Panel::bottom("status").show_inside(ui, |ui| {
+        egui::Panel::bottom("status").show(ui, |ui| {
             ui.horizontal(|ui| {
                 let fps = 1.0 / ui.input(|i| i.stable_dt);
                 ui.weak(format!("{fps:.0} FPS"));
@@ -80,7 +80,7 @@ impl eframe::App for MyApp {
                 }
             });
         });
-        egui::CentralPanel::default().show_inside(ui, |ui| {
+        egui::CentralPanel::default().show(ui, |ui| {
             ui.add(
                 egui_tracing::Logs::new(self.collector.clone())
                     .with_labels(self.labels.clone()),

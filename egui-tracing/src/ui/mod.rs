@@ -91,7 +91,7 @@ impl Widget for Logs {
                 egui::Panel::bottom(ui.id().with("detail_panel"))
                     .resizable(false)
                     .frame(egui::Frame::side_top_panel(ui.style()))
-                    .show_inside(ui, |ui| {
+                    .show(ui, |ui| {
                         ui.horizontal(|ui| {
                             ui.strong(self.labels.event_details.as_ref());
                             ui.with_layout(
