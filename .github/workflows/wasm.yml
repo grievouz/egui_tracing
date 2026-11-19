@@ -1,0 +1,30 @@
+name: WebAssembly
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+permissions:
+  contents: read
+
+jobs:
+  wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: cargo install wasm-pack --locked
+      # Exercise the library on its own so the example cannot supply missing
+      # dependency features through Cargo feature unification.
+      - run: wasm-pack test --node egui-tracing --no-default-features
+      - run: wasm-pack test --node egui-tracing
+      - run: wasm-pack test --node egui-tracing --features wasmbind
+      - run: wasm-pack build --target web --release --out-dir dist --no-pack --no-typescript examples/eframe-wasm32

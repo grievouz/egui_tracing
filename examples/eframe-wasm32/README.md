@@ -2,6 +2,8 @@
 
 This example demonstrates how to use [egui_tracing](https://github.com/grievouz/egui_tracing) with [eframe](https://github.com/emilk/egui/tree/master/crates/eframe) in a web enviroment using [WebAssembly](https://webassembly.org/).
 
+The library enables browser clock support automatically on wasm32 targets. No explicit wasmbind feature is needed; the legacy feature remains supported.
+
 ## Usage
 
 To use this example, make sure you have [just](https://github.com/casey/just), [wasm-pack](https://github.com/rustwasm/wasm-pack), and [miniserve](https://github.com/svenstaro/miniserve) installed on your system.

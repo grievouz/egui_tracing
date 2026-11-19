@@ -9,9 +9,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 eframe = { workspace = true, features = ["glow"] }
-egui_tracing = { path = "../../egui-tracing", features = [
-    "wasmbind",
-] }
+egui_tracing = { path = "../../egui-tracing" }
 tracing = { workspace = true, default-features = false }
 wasm-bindgen = "0.2.93"
 wasm-bindgen-futures = "0.4.42"
