@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0](https://github.com/grievouz/egui_tracing/compare/egui_tracing-v0.3.0...egui_tracing-v0.4.0) - 2026-11-19
+
+### Changed
+
+- Upgrade egui, egui_extras and the eframe examples from 0.34 to 0.36. Consumers must use compatible egui 0.36 types.
+
+### Added
+
+- Add generic timestamp collectors and log views, with an optional `time` backend and support for custom clocks. Existing chrono-based aliases and defaults remain available.
+
+### Fixed
+
+- Enable browser clock support automatically on wasm32 targets; the `wasmbind` feature remains available for compatibility.
+
 ## [0.3.0](https://github.com/grievouz/egui_tracing/compare/egui_tracing-v0.2.6...egui_tracing-v0.3.0) - 2026-04-10
 
 ### Added
