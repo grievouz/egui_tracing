@@ -9,7 +9,7 @@
 //! Enable the `time` feature to use UTC timestamps instead:
 //!
 //! ```toml
-//! egui_tracing = { version = "0.3.0", features = ["time"] }
+//! egui_tracing = { version = "0.4.0", features = ["time"] }
 //! ```
 //!
 //! ```
