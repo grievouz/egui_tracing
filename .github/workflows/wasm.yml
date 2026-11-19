@@ -2,9 +2,10 @@ name: WebAssembly
 
 on:
   push:
-    branches: [dev]
+    branches: [main, dev]
   pull_request:
-    branches: [dev]
+    branches: [main, dev]
+  workflow_call:
 
 permissions:
   contents: read
@@ -21,7 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: cargo install wasm-pack --locked
+      - run: cargo install wasm-pack --version 0.15.1 --locked
       # Exercise the library on its own so the example cannot supply missing
       # dependency features through Cargo feature unification.
       - run: wasm-pack test --node egui-tracing --no-default-features

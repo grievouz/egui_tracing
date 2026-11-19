@@ -1,0 +1,121 @@
+name: Release
+
+on:
+  push:
+    tags: ['egui_tracing-v*']
+
+permissions:
+  contents: read
+
+# Never cancel an in-progress publication for a newer tag.
+concurrency:
+  group: crates-io-release
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    if: github.repository == 'grievouz/egui_tracing'
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.validate.outputs.version }}
+      sha: ${{ steps.validate.outputs.sha }}
+      tag: ${{ steps.validate.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - run: git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
+      - id: validate
+        run: python3 .github/scripts/release.py validate
+      - run: python3 -B -m unittest discover -s .github/scripts -p 'test_*.py' -v
+
+  native:
+    needs: preflight
+    uses: ./.github/workflows/static-analysis.yaml
+
+  wasm:
+    needs: preflight
+    uses: ./.github/workflows/wasm.yml
+
+  package:
+    needs: preflight
+    runs-on: ubuntu-latest
+    outputs:
+      checksum: ${{ steps.package.outputs.checksum }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.preflight.outputs.sha }}
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Validate publishable package without credentials
+        id: package
+        env:
+          VERSION: ${{ needs.preflight.outputs.version }}
+          SOURCE_SHA: ${{ needs.preflight.outputs.sha }}
+        run: |
+          cargo publish -p egui_tracing --dry-run
+          checksum=$(python3 .github/scripts/release.py checksum "target/package/egui_tracing-${VERSION}.crate" "$SOURCE_SHA")
+          echo "checksum=$checksum" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-lockfile
+          path: Cargo.lock
+          if-no-files-found: error
+
+  publish:
+    needs: [preflight, native, wasm, package]
+    # Opt-in switch is repository-level; absent means validation only.
+    if: vars.RELEASE_PUBLISH_ENABLED == 'true'
+    environment: crates-io
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.preflight.outputs.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - run: git fetch --no-tags origin refs/heads/main:refs/remotes/origin/main
+      - run: python3 .github/scripts/release.py validate
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-lockfile
+          path: .
+      - name: Rebuild and compare the tested package before exposing credentials
+        env:
+          VERSION: ${{ needs.preflight.outputs.version }}
+          SOURCE_SHA: ${{ needs.preflight.outputs.sha }}
+          EXPECTED_CHECKSUM: ${{ needs.package.outputs.checksum }}
+        run: |
+          cargo publish -p egui_tracing --dry-run --locked
+          actual=$(python3 .github/scripts/release.py checksum "target/package/egui_tracing-${VERSION}.crate" "$SOURCE_SHA")
+          test "$actual" = "$EXPECTED_CHECKSUM"
+      - name: Publish only the library
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo publish -p egui_tracing --locked
+      - name: Verify crates.io has the tested archive
+        env:
+          VERSION: ${{ needs.preflight.outputs.version }}
+          EXPECTED_CHECKSUM: ${{ needs.package.outputs.checksum }}
+        run: python3 .github/scripts/release.py verify-publication "$VERSION" "$EXPECTED_CHECKSUM"
+
+  github-release:
+    needs: [preflight, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create the GitHub release only after verified crate publication
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.preflight.outputs.tag }}
+          VERSION: ${{ needs.preflight.outputs.version }}
+          SOURCE_SHA: ${{ needs.preflight.outputs.sha }}
+        run: |
+          printf 'Published egui_tracing %s to crates.io.\n\nhttps://crates.io/crates/egui_tracing/%s\n' "$VERSION" "$VERSION" > release-notes.md
+          gh release create "$TAG" --verify-tag --target "$SOURCE_SHA" --title "$TAG" --notes-file release-notes.md

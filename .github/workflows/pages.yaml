@@ -16,6 +16,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -29,10 +30,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Add wasm target
         run: rustup target add wasm32-unknown-unknown
-      - run: cargo install just
-      - run: cargo install wasm-pack
-      - run: just build
-        working-directory: ./examples/eframe-wasm32
+      - run: cargo install wasm-pack --version 0.15.1 --locked
+      - run: wasm-pack build --target web --release --out-dir dist --no-pack --no-typescript examples/eframe-wasm32
+      - run: cp examples/eframe-wasm32/index.html examples/eframe-wasm32/dist/index.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
