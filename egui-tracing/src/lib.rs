@@ -26,10 +26,12 @@
 //! clock. Both backends can coexist; enabling a feature never changes an existing
 //! field type, and `--all-features` is supported.
 //!
-//! The time backend captures UTC without local-offset discovery. Table timestamps
-//! are labelled with `Z`; details include the numeric offset and retain subsecond
-//! precision. Chrono retains its local-time formats. Both backends enable their
-//! JavaScript clock support automatically on wasm32; `wasmbind` remains supported.
+//! The time backend captures UTC without local-offset discovery. The log widget
+//! uses [`Timestamp::format_short`] for both the table and selected-event details;
+//! time timestamps show milliseconds and are labelled with `Z`. Call
+//! [`Timestamp::format_detailed`] directly for the date, numeric offset, and full
+//! subsecond precision. Chrono retains its local-time formats. Both backends enable
+//! their JavaScript clock support automatically on wasm32; `wasmbind` remains supported.
 //!
 //! Chrono remains an unconditional dependency, including with default features
 //! disabled. Enabling `time` does not remove chrono or its audit notice.

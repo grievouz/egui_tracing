@@ -21,7 +21,10 @@ pub trait Timestamp: Clone + Debug + Send + Sync + 'static {
     /// Render a compact timestamp for the event table.
     fn format_short(&self) -> String;
 
-    /// Render the full timestamp for the event details panel.
+    /// Render a full timestamp for callers that need more detail.
+    ///
+    /// The log widget currently uses [`Self::format_short`] in both the event
+    /// table and the selected-event details panel.
     fn format_detailed(&self) -> String;
 }
 
