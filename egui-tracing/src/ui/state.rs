@@ -4,29 +4,56 @@ use globset::{Glob, GlobSet, GlobSetBuilder};
 use imbl::Vector;
 use tracing::Level;
 
-use crate::tracing::CollectedEvent;
+use crate::tracing::GenericCollectedEvent;
+use crate::Timestamp;
 
-#[derive(Debug, Default)]
-pub struct LogsState {
+#[derive(Debug)]
+pub struct LogsState<T: Timestamp> {
     pub level_filter: LevelFilter,
     pub target_filter: TargetFilter,
-    pub cache: FilterCache,
+    pub cache: FilterCache<T>,
     pub selected_row: Option<usize>,
     pub scroll_to_bottom: bool,
 }
 
-#[derive(Debug, Default)]
-pub struct FilterCache {
+#[derive(Debug)]
+pub struct FilterCache<T: Timestamp> {
     generation: u64,
     filter_hash: u64,
     raw_event_count: usize,
     glob_set: Option<GlobSet>,
     glob_targets_hash: u64,
-    source_events: Vector<CollectedEvent>,
+    source_events: Vector<GenericCollectedEvent<T>>,
     filtered_indices: Vec<usize>,
 }
 
-impl FilterCache {
+impl<T: Timestamp> Default for LogsState<T> {
+    fn default() -> Self {
+        Self {
+            level_filter: LevelFilter::default(),
+            target_filter: TargetFilter::default(),
+            cache: FilterCache::default(),
+            selected_row: None,
+            scroll_to_bottom: false,
+        }
+    }
+}
+
+impl<T: Timestamp> Default for FilterCache<T> {
+    fn default() -> Self {
+        Self {
+            generation: 0,
+            filter_hash: 0,
+            raw_event_count: 0,
+            glob_set: None,
+            glob_targets_hash: 0,
+            source_events: Vector::new(),
+            filtered_indices: Vec::new(),
+        }
+    }
+}
+
+impl<T: Timestamp> FilterCache<T> {
     pub fn needs_update(&self, generation: u64, filter_hash: u64) -> bool {
         self.generation != generation || self.filter_hash != filter_hash
     }
@@ -35,7 +62,7 @@ impl FilterCache {
         self.filtered_indices.len()
     }
 
-    pub fn get(&self, idx: usize) -> &CollectedEvent {
+    pub fn get(&self, idx: usize) -> &GenericCollectedEvent<T> {
         &self.source_events[self.filtered_indices[idx]]
     }
 
@@ -56,7 +83,7 @@ impl FilterCache {
 
     pub fn update(
         &mut self,
-        events: &Vector<CollectedEvent>,
+        events: &Vector<GenericCollectedEvent<T>>,
         generation: u64,
         filter_hash: u64,
         level_filter: &LevelFilter,
@@ -71,7 +98,7 @@ impl FilterCache {
         let glob_set = &self.glob_set;
         let matches_glob = |target: &str| glob_set.as_ref().is_some_and(|g| g.is_match(target));
         let matches =
-            |e: &CollectedEvent| level_filter.get(e.level) && !matches_glob(&e.target);
+            |e: &GenericCollectedEvent<T>| level_filter.get(e.level) && !matches_glob(&e.target);
 
         if filters_changed || events.len() < self.raw_event_count {
             self.filtered_indices = events

@@ -27,4 +27,6 @@ jobs:
       - run: wasm-pack test --node egui-tracing --no-default-features
       - run: wasm-pack test --node egui-tracing
       - run: wasm-pack test --node egui-tracing --features wasmbind
+      - run: wasm-pack test --node egui-tracing --no-default-features --features time
+      - run: wasm-pack test --node egui-tracing --all-features
       - run: wasm-pack build --target web --release --out-dir dist --no-pack --no-typescript examples/eframe-wasm32

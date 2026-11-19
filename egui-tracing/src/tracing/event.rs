@@ -1,20 +1,30 @@
 use std::fmt::{self, Debug, Write};
 
-use chrono::{DateTime, Local};
+use crate::Timestamp;
 use tracing::field::{Field, Visit};
 use tracing::{Event, Metadata};
 
 #[derive(Debug, Clone)]
-pub struct CollectedEvent {
+/// An event carrying a timestamp chosen by its collector.
+///
+/// Use [`CollectedEvent`] for the existing chrono timestamp type.
+pub struct GenericCollectedEvent<T> {
     pub target: String,
     pub level: tracing::Level,
     pub message: Option<String>,
     pub fields: Vec<(String, String)>,
-    pub time: DateTime<Local>,
+    pub time: T,
     pub collapsed_summary: String,
 }
 
-impl CollectedEvent {
+/// A collected event with the default chrono local timestamp.
+pub type CollectedEvent = GenericCollectedEvent<chrono::DateTime<chrono::Local>>;
+
+/// A collected event with a UTC `time` timestamp.
+#[cfg(feature = "time")]
+pub type TimeCollectedEvent = GenericCollectedEvent<::time::OffsetDateTime>;
+
+impl<T: Timestamp> GenericCollectedEvent<T> {
     pub fn new(event: &Event, meta: &Metadata) -> Self {
         let mut visitor = FieldVisitor {
             message: None,
@@ -24,9 +34,9 @@ impl CollectedEvent {
 
         let collapsed_summary = Self::build_summary(&visitor.message, &visitor.fields);
 
-        CollectedEvent {
+        Self {
             level: meta.level().to_owned(),
-            time: Local::now(),
+            time: T::now(),
             target: meta.target().to_owned(),
             message: visitor.message,
             fields: visitor.fields,

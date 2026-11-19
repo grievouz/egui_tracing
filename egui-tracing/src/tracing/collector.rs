@@ -9,7 +9,8 @@ use tracing_subscriber::layer::Context;
 use tracing_subscriber::registry::LookupSpan;
 use tracing_subscriber::Layer;
 
-use super::event::CollectedEvent;
+use super::event::GenericCollectedEvent;
+use crate::Timestamp;
 
 #[derive(Clone, Debug)]
 pub enum AllowedTargets {
@@ -18,16 +19,26 @@ pub enum AllowedTargets {
 }
 
 #[derive(Debug, Clone)]
-pub struct EventCollector {
+/// A tracing layer collecting events with the selected timestamp type.
+///
+/// This uses static dispatch; cloning a collector shares its event buffer.
+pub struct GenericEventCollector<T: Timestamp> {
     allowed_targets: AllowedTargets,
     max_level: Level,
     max_events: Option<usize>,
-    events: Arc<Mutex<Vector<CollectedEvent>>>,
-    pending: Arc<Mutex<Vec<CollectedEvent>>>,
+    events: Arc<Mutex<Vector<GenericCollectedEvent<T>>>>,
+    pending: Arc<Mutex<Vec<GenericCollectedEvent<T>>>>,
     generation: Arc<AtomicU64>,
 }
 
-impl EventCollector {
+/// The default collector, preserving chrono local timestamps.
+pub type EventCollector = GenericEventCollector<chrono::DateTime<chrono::Local>>;
+
+/// A collector capturing UTC timestamps using `time`.
+#[cfg(feature = "time")]
+pub type TimeEventCollector = GenericEventCollector<::time::OffsetDateTime>;
+
+impl<T: Timestamp> GenericEventCollector<T> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -66,7 +77,7 @@ impl EventCollector {
         self.len() == 0
     }
 
-    pub fn events(&self) -> Vector<CollectedEvent> {
+    pub fn events(&self) -> Vector<GenericCollectedEvent<T>> {
         self.drain_pending();
         self.events.lock().unwrap().clone()
     }
@@ -99,7 +110,7 @@ impl EventCollector {
         self.generation.fetch_add(1, Ordering::Relaxed);
     }
 
-    fn collect(&self, event: CollectedEvent) {
+    fn collect(&self, event: GenericCollectedEvent<T>) {
         if event.level <= self.max_level {
             let should_collect = match self.allowed_targets {
                 AllowedTargets::All => true,
@@ -114,7 +125,7 @@ impl EventCollector {
     }
 }
 
-impl Default for EventCollector {
+impl<T: Timestamp> Default for GenericEventCollector<T> {
     fn default() -> Self {
         Self {
             allowed_targets: AllowedTargets::All,
@@ -127,7 +138,7 @@ impl Default for EventCollector {
     }
 }
 
-impl<S> Layer<S> for EventCollector
+impl<S, T: Timestamp> Layer<S> for GenericEventCollector<T>
 where
     S: Subscriber + for<'a> LookupSpan<'a>,
 {
@@ -139,6 +150,6 @@ where
         #[cfg(not(feature = "log"))]
         let meta = event.metadata();
 
-        self.collect(CollectedEvent::new(event, meta));
+        self.collect(GenericCollectedEvent::new(event, meta));
     }
 }

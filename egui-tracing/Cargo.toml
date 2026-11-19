@@ -10,6 +10,7 @@ categories = ["gui", "game-development"]
 
 [features]
 default = ["log", "egui-default"]
+time = ["dep:time"]
 egui-default = ["egui/default"]
 log = ["tracing-log", "tracing-subscriber/tracing-log"]
 # Kept for compatibility; wasm32 targets enable browser clock support automatically.
@@ -19,6 +20,7 @@ wasmbind = ["chrono/wasmbind"]
 chrono = { workspace = true, features = ["clock"] }
 egui = { workspace = true }
 egui_extras = { workspace = true }
+time = { version = "0.3.55", optional = true, default-features = false, features = ["std"] }
 imbl = "7"
 globset = "0.4"
 tracing = { workspace = true, default-features = false }
@@ -27,6 +29,7 @@ tracing-subscriber = { version = "0.3", default-features = false, features = ["r
 unicode-segmentation = "1"
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
+time = { version = "0.3.55", optional = true, default-features = false, features = ["wasm-bindgen"] }
 chrono = { workspace = true, features = ["wasmbind"] }
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
