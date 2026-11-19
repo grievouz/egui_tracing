@@ -14,17 +14,25 @@ use self::components::level_menu_button::LevelMenuButton;
 use self::components::target_menu_button::TargetMenuButton;
 use self::labels::Labels;
 use self::state::LogsState;
-use crate::time::DateTimeFormatExt;
-use crate::tracing::collector::EventCollector;
+use crate::Timestamp;
+use crate::tracing::collector::GenericEventCollector;
 
-pub struct Logs {
-    collector: EventCollector,
+/// Log widget using the timestamp type of its collector.
+pub struct GenericLogs<T: Timestamp> {
+    collector: GenericEventCollector<T>,
     labels: Labels,
 }
 
-impl Logs {
+/// Log widget for the default chrono collector.
+pub type Logs = GenericLogs<chrono::DateTime<chrono::Local>>;
+
+/// Log widget for the UTC `time` collector.
+#[cfg(feature = "time")]
+pub type TimeLogs = GenericLogs<::time::OffsetDateTime>;
+
+impl<T: Timestamp> GenericLogs<T> {
     #[must_use]
-    pub fn new(collector: EventCollector) -> Self {
+    pub fn new(collector: GenericEventCollector<T>) -> Self {
         Self {
             collector,
             labels: Labels::default(),
@@ -38,7 +46,7 @@ impl Logs {
     }
 }
 
-impl Widget for Logs {
+impl<T: Timestamp> Widget for GenericLogs<T> {
     fn ui(self, ui: &mut egui::Ui) -> Response {
         #[cfg(debug_assertions)]
         ui.ctx().style_mut_of(ui.theme(), |style| {
@@ -49,7 +57,7 @@ impl Widget for Logs {
             let state_mem_id = ui.id();
             mem.data
                 .get_temp_mut_or_insert_with(state_mem_id, || {
-                    Arc::new(Mutex::new(LogsState::default()))
+                    Arc::new(Mutex::new(LogsState::<T>::default()))
                 })
                 .clone()
         });

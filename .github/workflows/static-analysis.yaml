@@ -16,6 +16,10 @@ jobs:
       - run: rustup component add clippy
       - run: cargo clippy
       - run: cargo test --workspace
+      - run: cargo test -p egui_tracing --no-default-features
+      - run: cargo test -p egui_tracing --no-default-features --features time
+      - run: cargo test --workspace --all-features
+      - run: cargo clippy --workspace --all-targets --all-features
   cargo-audit:
     runs-on: ubuntu-latest
     steps:

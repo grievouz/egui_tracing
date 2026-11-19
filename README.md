@@ -42,6 +42,9 @@ ui.add(
 );
 ```
 
+For alternative timestamps, enable the `time` feature or implement `Timestamp`
+for a custom clock. See the [API docs](https://docs.rs/egui_tracing) for details.
+
 ## Example
 
 ![Preview Image](https://raw.githubusercontent.com/grievouz/egui_tracing/main/docs/preview.png)
