@@ -3,6 +3,7 @@ resolver = "2"
 members = ["egui-tracing", "examples/eframe", "examples/eframe-wasm32"]
 
 [workspace.dependencies]
+chrono = { version = "0.4", default-features = false }
 eframe = { version = "0.36", default-features = false }
 egui = { version = "0.36", default-features = false }
 egui_extras = { version = "0.36", default-features = false }
