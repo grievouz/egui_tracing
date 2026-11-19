@@ -57,6 +57,7 @@ jobs:
           SOURCE_SHA: ${{ needs.preflight.outputs.sha }}
         run: |
           cargo publish -p egui_tracing --dry-run
+          cargo package -p egui_tracing --locked
           checksum=$(python3 .github/scripts/release.py checksum "target/package/egui_tracing-${VERSION}.crate" "$SOURCE_SHA")
           echo "checksum=$checksum" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
@@ -91,6 +92,7 @@ jobs:
           EXPECTED_CHECKSUM: ${{ needs.package.outputs.checksum }}
         run: |
           cargo publish -p egui_tracing --dry-run --locked
+          cargo package -p egui_tracing --locked
           actual=$(python3 .github/scripts/release.py checksum "target/package/egui_tracing-${VERSION}.crate" "$SOURCE_SHA")
           test "$actual" = "$EXPECTED_CHECKSUM"
       - name: Publish only the library
