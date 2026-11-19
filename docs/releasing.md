@@ -61,7 +61,9 @@ Before setting it to `true`:
 4. The tag workflow rejects malformed/prerelease tags, version mismatches,
    commits not on `main`, and mismatched tag/event/checkout commits. It runs
    native, audit, wasm, and release-guard tests and a credential-free package
-   dry run. It records the clean source SHA and archive checksum.
+   dry run. The package job explicitly generates a workspace lockfile before
+   running the locked dry run and packaging; library packaging alone does not
+   create a root lockfile. It records the clean source SHA and archive checksum.
 5. After environment approval, the publishing job revalidates the tag and
    ancestry, uses the validation job's lockfile, rebuilds the package, and
    requires an identical checksum before exposing credentials. It publishes
