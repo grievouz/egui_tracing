@@ -11,8 +11,7 @@ categories = ["gui", "game-development"]
 [features]
 default = ["log", "egui-default"]
 time = ["dep:time"]
-# egui 0.37 no longer includes bundled fonts in its default features.
-egui-default = ["egui/default", "egui/default_fonts"]
+egui-default = ["egui/default"]
 log = ["tracing-log", "tracing-subscriber/tracing-log"]
 # Kept for compatibility; wasm32 targets enable browser clock support automatically.
 wasmbind = ["chrono/wasmbind"]
@@ -32,6 +31,10 @@ unicode-segmentation = "1"
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 time = { version = "0.3.55", optional = true, default-features = false, features = ["wasm-bindgen"] }
 chrono = { workspace = true, features = ["wasmbind"] }
+
+[dev-dependencies]
+# Rendering tests act as the host application and opt into bundled fonts.
+egui = { workspace = true, features = ["default_fonts"] }
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
 wasm-bindgen-test = "0.3"
