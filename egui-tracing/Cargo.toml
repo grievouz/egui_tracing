@@ -11,7 +11,8 @@ categories = ["gui", "game-development"]
 [features]
 default = ["log", "egui-default"]
 time = ["dep:time"]
-egui-default = ["egui/default"]
+# egui 0.37 no longer includes bundled fonts in its default features.
+egui-default = ["egui/default", "egui/default_fonts"]
 log = ["tracing-log", "tracing-subscriber/tracing-log"]
 # Kept for compatibility; wasm32 targets enable browser clock support automatically.
 wasmbind = ["chrono/wasmbind"]
