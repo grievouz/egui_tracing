@@ -18,8 +18,6 @@ Add `egui_tracing` to your `Cargo.toml` dependencies:
 egui_tracing = "0.5.0"
 ```
 
-Requires egui 0.37.
-
 ## Usage
 
 Set up the collector once at startup and register it as a `tracing` layer:
