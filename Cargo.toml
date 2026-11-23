@@ -4,7 +4,7 @@ members = ["egui-tracing", "examples/eframe", "examples/eframe-wasm32"]
 
 [workspace.dependencies]
 chrono = { version = "0.4", default-features = false }
-eframe = { version = "0.36", default-features = false }
-egui = { version = "0.36", default-features = false }
-egui_extras = { version = "0.36", default-features = false }
+eframe = { version = "0.37", default-features = false }
+egui = { version = "0.37", default-features = false }
+egui_extras = { version = "0.37", default-features = false }
 tracing = { version = "0.1", default-features = false }

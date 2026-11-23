@@ -32,5 +32,9 @@ unicode-segmentation = "1"
 time = { version = "0.3.55", optional = true, default-features = false, features = ["wasm-bindgen"] }
 chrono = { workspace = true, features = ["wasmbind"] }
 
+[dev-dependencies]
+# Rendering tests act as the host application and opt into bundled fonts.
+egui = { workspace = true, features = ["default_fonts"] }
+
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
 wasm-bindgen-test = "0.3"
