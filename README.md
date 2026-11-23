@@ -18,7 +18,7 @@ Add `egui_tracing` to your `Cargo.toml` dependencies:
 egui_tracing = "0.5.0"
 ```
 
-Requires egui 0.37. Applications are responsible for providing fonts.
+Requires egui 0.37.
 
 ## Usage
 
