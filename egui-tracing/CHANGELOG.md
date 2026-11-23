@@ -7,11 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-
-- Upgrade egui, egui_extras and the eframe examples from 0.36 to 0.37. Consumers must use compatible egui 0.37 types.
-- Follow egui 0.37 font defaults: applications choose their fonts; egui-default no longer implicitly enables bundled fonts.
-
 ## [0.4.0](https://github.com/grievouz/egui_tracing/compare/egui_tracing-v0.3.0...egui_tracing-v0.4.0) - 2026-11-19
 
 ### Changed
