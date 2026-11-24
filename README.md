@@ -15,7 +15,7 @@ Add `egui_tracing` to your `Cargo.toml` dependencies:
 
 ```toml
 [dependencies]
-egui_tracing = "0.4.0"
+egui_tracing = "0.5.0"
 ```
 
 ## Usage
